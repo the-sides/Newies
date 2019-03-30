@@ -2,6 +2,7 @@ $(() =>{
 
     // Runs twice, once failing when the page is initially accessed, and 
     var token = window.location.href.indexOf("access_token=");
+    var trackLimit = 20
     console.log("Boom, let's get these songs ", token+13)
     if(token !== -1){
         token = window.location.href
@@ -25,5 +26,4 @@ $(() =>{
         if(token === -1) return;
         console.log(token)
     })
-
 })
