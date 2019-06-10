@@ -3,8 +3,9 @@ $(() =>{
     // Runs twice, once failing when the page is initially accessed, and 
     var token = window.location.href.indexOf("access_token=");
     var trackLimit = 20
-    const data = {
-        token: undefined
+    const session_data = {
+        token: undefined,
+        userData: undefined
     }
 
     if(token !== -1){
@@ -15,10 +16,10 @@ $(() =>{
                 window.location.href.indexOf('&') 
             )
         console.log(token)
-        data.token = token;
+        session_data.token = token;
 
         // Start user breakdown
-        revealStatus('connected', data.token);
+        revealStatus('connected', session_data.token);
 
     }
 
@@ -34,18 +35,26 @@ $(() =>{
     })
 
     $("#generateBtn").click(() => {
-        if(token === -1) return;
-        console.log(token)
+        if(session_data.token === -1) 
+            return false;
+
+        console.log('User Authenticated', session_data.token);
+
+        if(session_data.userData === undefined){
+            console.log('waiting for user data')
+            return false;
+        }
+        console.log('User data confirmed.\nPulling all playlists...')
+
+        grabAllPlaylists();
     })
 
     function renderUserData(userData){
         console.log('rendering', userData)
         const statusElem = document.querySelector('.welcomeStatus');
-        const playlistElem = document.querySelector('.playlistCount');
         const scroller = [...document.querySelectorAll('.contentBeneath')];
 
         statusElem.textContent = `Welcome ${userData.display_name}`;
-        playlistElem.textContent = `You have ${userData.display_name} playlists`;
 
         // Show an element
         const show = function (elem) {
@@ -71,17 +80,26 @@ $(() =>{
 
         show(scroller[0])
         show(scroller[1])
-        
+
+        // This is passed into a function that will take the user's id and
+        //  fetch a list of playlists to furth compute
+        return userData;
     }
 
-    function getUserData(_token){ 
+    function renderPlaylistSummary(data){
+        console.log('fetching playlists from', data)
+        const playlistElem = document.querySelector('.playlistCount');
+        playlistElem.textContent = `You have ${data.total} playlists`;
+    }
+
+    function getSpotifyData(_token, url){ 
         return new Promise(function(resolve, reject){
             let headerss = new Headers({
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + _token
             })
-            let spotifyRequest = new Request('https://api.spotify.com/v1/me/',{
+            let spotifyRequest = new Request(url,{
                 method: 'GET',
                 mode: 'cors',
                 headers: headerss
@@ -99,11 +117,24 @@ $(() =>{
     }
 
     
-    function revealStatus(stage, token){
+    function revealStatus(stage, token, userData = undefined){
         switch(stage){
             case 'connected': 
-                getUserData(token).then(rv => renderUserData(rv))
+                getSpotifyData(token, 'https://api.spotify.com/v1/me/')
+                .then(rv => {
+                    session_data.userData = rv;
+                    return renderUserData(rv)
+                })
+                .then(userData => revealStatus('playlist summary', token, userData));
+                break;
+            case 'playlist summary':
+                getSpotifyData(token, `https://api.spotify.com/v1/users/${userData.id}/playlists`)
+                .then(rv => renderPlaylistSummary(rv));
                 break;
         }
+    }
+    function grabAllPlaylists(){
+        // Data is session_data simply passed
+        
     }
 })
