@@ -40,6 +40,38 @@ $(() =>{
 
     function renderUserData(userData){
         console.log('rendering', userData)
+        const statusElem = document.querySelector('.welcomeStatus');
+        const playlistElem = document.querySelector('.playlistCount');
+        const scroller = [...document.querySelectorAll('.contentBeneath')];
+
+        statusElem.textContent = `Welcome ${userData.display_name}`;
+        playlistElem.textContent = `You have ${userData.display_name} playlists`;
+
+        // Show an element
+        const show = function (elem) {
+
+            // Get the natural height of the element
+            const getHeight = function () {
+                elem.style.display = 'block'; // Make it visible
+                var height = elem.scrollHeight + 'px'; // Get it's height
+                elem.style.display = ''; //  Hide it again
+                return height;
+            };
+
+            const height = getHeight(); // Get the natural height
+            elem.classList.add('revealed'); // Make the element visible
+            elem.style.height = height; // Update the max-height
+
+            // Once the transition is complete, remove the inline max-height so the content can scale responsively
+            window.setTimeout(function () {
+                elem.style.height = '';
+            }, 500);
+
+        };
+
+        show(scroller[0])
+        show(scroller[1])
+        
     }
 
     function getUserData(_token){ 

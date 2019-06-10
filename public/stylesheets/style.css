@@ -16,14 +16,29 @@ a {
   align-items: center;
   justify-content: center;
 }
-#userInput{
+
+.userInput{
   margin-top: 2em;
 }
 
-/* Don't exist here, for centering reference */
-.App {
-  text-align: center;
+.userInfo{
+  width: 80%;
+  margin: 0 auto;
 }
+
+.welcomeStatus{
+}
+.contentBeneath{
+  height: 0;
+  display: none;
+  overflow: hidden;
+}
+.revealed{
+  transition: height 500ms ease-in-out;
+  display: block;
+  height: auto; 
+}
+
 
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
@@ -31,20 +46,6 @@ a {
   pointer-events: none;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
 
 @keyframes App-logo-spin {
   from {
