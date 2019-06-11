@@ -1,11 +1,15 @@
 $(() =>{
 
     // Runs twice, once failing when the page is initially accessed, and 
-    var token = window.location.href.indexOf("access_token=");
-    var trackLimit = 20
+    let token = window.location.href.indexOf("access_token=");
+
+    // lmao ancient code
+    // ? var trackLimit = 20
     const session_data = {
         token: undefined,
-        userData: undefined
+        userData: undefined,
+        playlistData: undefined,
+        trackBank: [],
     }
 
     if(token !== -1){
@@ -57,6 +61,8 @@ $(() =>{
         statusElem.textContent = `Welcome ${userData.display_name}`;
 
         // Show an element
+        // I know I know I'm bad. Stolen and weakly implemented from here
+        // https://jsfiddle.net/mo0cn97s/
         const show = function (elem) {
 
             // Get the natural height of the element
@@ -90,6 +96,7 @@ $(() =>{
         console.log('fetching playlists from', data)
         const playlistElem = document.querySelector('.playlistCount');
         playlistElem.textContent = `You have ${data.total} playlists`;
+        session_data.playlistData = data;
     }
 
     function getSpotifyData(_token, url){ 
@@ -128,13 +135,73 @@ $(() =>{
                 .then(userData => revealStatus('playlist summary', token, userData));
                 break;
             case 'playlist summary':
-                getSpotifyData(token, `https://api.spotify.com/v1/users/${userData.id}/playlists`)
+                getSpotifyData(token, `https://api.spotify.com/v1/users/${userData.id}/playlists?limit=50`)
                 .then(rv => renderPlaylistSummary(rv));
                 break;
         }
     }
+
+    async function getSinglePlaylist(url) {
+        const startTime = Date.now();
+        const trackDump = await getSpotifyData(session_data.token, url)
+        .then(playlist => {
+            console.log('single playlist', playlist);
+            playlist.items.forEach(song =>{
+                let dateStreak = 0;
+                // console.log('song', song.track.uri, Date.parse(song.added_at));
+                bufferBank.push({
+                    title: song.track.name,
+                    artist: song.track.artists[0].name,
+                    uri: song.track.uri,
+                    date: song.added_at 
+                })
+                // console.log('song', bufferBank[bufferBank.length-1])
+            })
+            // resolve(bufferBank);
+            return bufferBank;
+            // Array.prototype.push.apply(trackBank, bufferBank);
+        })
+        console.log('time elapsed for playlist', Date.now() - startTime)
+        console.log('await return', trackDump);
+        Array.prototype.push.apply(session_data.trackBank, trackDump)
+        return true;
+    }
+
     function grabAllPlaylists(){
-        // Data is session_data simply passed
+        if(session_data.playlistData === undefined) 
+            return false; 
+
+        let totalPlaylistLeft = session_data.playlistData.total;
+        console.log(totalPlaylistLeft)
         
+        // First playlistData fetch of 50 playlists was to list 
+        // for(let totalPlaylistLeft = session_data.playlistData.total; 
+        //         totalPlaylistLeft > 50; 
+        //         totalPlaylistLeft--         ){
+            for(let i = 0; i < totalPlaylistLeft % 50; i++){
+                let playlist_id = session_data.playlistData.items[i].id;
+                let url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
+
+                // Instead of returning anything,
+                //   this will lopp through a playlist's tracks
+                //   saving all tracks to a 
+                getSinglePlaylist(url);
+            }
+
+        //     totalPlaylistLeft -= 50;
+
+        //     // Find last page of playlists 
+        //     if(totalPlaylistLeft < 1){
+        //         totalPlaylistLeft *= -1;
+        //     }
+        // }
+
+        
+
+        // for(let i = 0; i < Math.floor(session_data.playlistData.total / 50); i++){
+        //     // Within a specific playlist
+        //     // for(let trackIndex = 0;)
+        // }
+
     }
 })
