@@ -1,16 +1,17 @@
-$(() =>{
+// lmao ancient code
+// ? var trackLimit = 20
+const session_data = {
+    token: undefined,
+    userData: undefined,
+    playlistData: undefined,
+    trackBank: [],
+}
+
+function run(){
 
     // Runs twice, once failing when the page is initially accessed, and 
     let token = window.location.href.indexOf("access_token=");
 
-    // lmao ancient code
-    // ? var trackLimit = 20
-    const session_data = {
-        token: undefined,
-        userData: undefined,
-        playlistData: undefined,
-        trackBank: [],
-    }
 
     if(token !== -1){
         // Info found in url
@@ -27,7 +28,11 @@ $(() =>{
 
     }
 
-    $('#authoBtn').click(() => {
+    //* Queries
+    const authorizeBtn = document.getElementById('authoBtn');
+    const generateBtn = document.getElementById('generateBtn');
+
+    function authorizeButton(){
         const scopes = [
             'playlist-read-private',
             'user-read-recently-played',
@@ -36,9 +41,9 @@ $(() =>{
             'playlist-read-collaborative',
         ]
         window.location = "https://accounts.spotify.com/authorize?client_id=9ae70c7a06b14e38bc355c0b4e7f8d42&redirect_uri=http://127.0.0.1:3000" + "&scope=" + scopes.join('%20') + "&response_type=token&state=123"
-    })
+    }
 
-    $("#generateBtn").click(() => {
+    function generateButton(){
         if(session_data.token === -1) 
             return false;
 
@@ -51,7 +56,8 @@ $(() =>{
         console.log('User data confirmed.\nPulling all playlists...')
 
         grabAllPlaylists();
-    })
+        setTimeout(()=>console.log(session_data.trackBank.length), 3000)
+    }
 
     function renderUserData(userData){
         console.log('rendering', userData)
@@ -145,9 +151,10 @@ $(() =>{
         const startTime = Date.now();
         const trackDump = await getSpotifyData(session_data.token, url)
         .then(playlist => {
+            let bufferBank = [];
             console.log('single playlist', playlist);
             playlist.items.forEach(song =>{
-                let dateStreak = 0;
+                //// let dateStreak = 0;
                 // console.log('song', song.track.uri, Date.parse(song.added_at));
                 bufferBank.push({
                     title: song.track.name,
@@ -178,18 +185,16 @@ $(() =>{
         // for(let totalPlaylistLeft = session_data.playlistData.total; 
         //         totalPlaylistLeft > 50; 
         //         totalPlaylistLeft--         ){
-            for(let i = 0; i < totalPlaylistLeft % 50; i++){
-                let playlist_id = session_data.playlistData.items[i].id;
-                let url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
+        for(let i = 0; i < totalPlaylistLeft % 50; i++){
+            let playlist_id = session_data.playlistData.items[i].id;
+            let url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
 
-                // Instead of returning anything,
-                //   this will lopp through a playlist's tracks
-                //   saving all tracks to a 
-                getSinglePlaylist(url);
-            }
-
+            // Instead of returning anything,
+            //   this will lopp through a playlist's tracks
+            //   saving all tracks to a 
+            getSinglePlaylist(url);
+        }
         //     totalPlaylistLeft -= 50;
-
         //     // Find last page of playlists 
         //     if(totalPlaylistLeft < 1){
         //         totalPlaylistLeft *= -1;
@@ -204,4 +209,11 @@ $(() =>{
         // }
 
     }
-})
+
+    // Event Listeners
+    authorizeBtn.addEventListener('mouseup', authorizeButton)
+    generateBtn.addEventListener('mouseup', generateButton)
+
+}
+
+window.addEventListener('DOMContentLoaded', run);
