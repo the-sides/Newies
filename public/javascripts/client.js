@@ -7,18 +7,18 @@ const session_data = {
     trackBank: [],
 }
 
-function run(){
+function run() {
 
     // Runs twice, once failing when the page is initially accessed, and 
     let token = window.location.href.indexOf("access_token=");
 
 
-    if(token !== -1){
+    if (token !== -1) {
         // Info found in url
         token = window.location.href
             .substring(
-                token+13,
-                window.location.href.indexOf('&') 
+                token + 13,
+                window.location.href.indexOf('&')
             )
         console.log(token)
         session_data.token = token;
@@ -32,7 +32,7 @@ function run(){
     const authorizeBtn = document.getElementById('authoBtn');
     const generateBtn = document.getElementById('generateBtn');
 
-    function authorizeButton(){
+    function authorizeButton() {
         const scopes = [
             'playlist-read-private',
             'user-read-recently-played',
@@ -43,23 +43,28 @@ function run(){
         window.location = "https://accounts.spotify.com/authorize?client_id=9ae70c7a06b14e38bc355c0b4e7f8d42&redirect_uri=http://127.0.0.1:3000" + "&scope=" + scopes.join('%20') + "&response_type=token&state=123"
     }
 
-    function generateButton(){
-        if(session_data.token === -1) 
+    function generateButton() {
+        if (session_data.token === -1)
             return false;
 
         console.log('User Authenticated', session_data.token);
 
-        if(session_data.userData === undefined){
+        if (session_data.userData === undefined) {
             console.log('waiting for user data')
             return false;
         }
         console.log('User data confirmed.\nPulling all playlists...')
 
-        grabAllPlaylists();
-        setTimeout(()=>console.log(session_data.trackBank.length), 3000)
+        grabAllPlaylists()
+        //// .then(
+        ////     function(response){
+        ////         console.log('FINAL REPORT. length and then parma ', 
+        ////             session_data.trackBank.length, response)
+        ////     }
+        //// );
     }
 
-    function renderUserData(userData){
+    function renderUserData(userData) {
         console.log('rendering', userData)
         const statusElem = document.querySelector('.welcomeStatus');
         const scroller = [...document.querySelectorAll('.contentBeneath')];
@@ -98,51 +103,63 @@ function run(){
         return userData;
     }
 
-    function renderPlaylistSummary(data){
+    function displayPlaylistCount(data) {
         console.log('fetching playlists from', data)
         const playlistElem = document.querySelector('.playlistCount');
         playlistElem.textContent = `You have ${data.total} playlists`;
-        session_data.playlistData = data;
     }
 
-    function getSpotifyData(_token, url){ 
-        return new Promise(function(resolve, reject){
+    async function getPlaylistList(renderPlz = false, offset = 0, uid = session_data.userData.id, token = session_data.token) {
+        console.log('calling for offset ', offset)
+        const url = `https://api.spotify.com/v1/users/${uid}/playlists?limit=50&offset=${offset}`;
+        const plist = await getSpotifyData(token, url)
+            .then(response => {
+                if (renderPlz)
+                    displayPlaylistCount(response)
+                session_data.playlistData = response;
+                return response;
+            }
+            );
+        return plist;
+    }
+
+    function getSpotifyData(_token, url) {
+        return new Promise(function (resolve, reject) {
             let headerss = new Headers({
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + _token
             })
-            let spotifyRequest = new Request(url,{
+            let spotifyRequest = new Request(url, {
                 method: 'GET',
                 mode: 'cors',
                 headers: headerss
             })
-            
+
             fetch(spotifyRequest)
-            .then(
-                result => {return result.json()}
-            )
-            .then(
-                (json) => resolve(json)
-            )
-            .catch(error => reject(error))
+                .then(
+                    result => { return result.json() }
+                )
+                .then(
+                    (json) => resolve(json)
+                )
+                .catch(error => reject(error))
         })
     }
 
-    
-    function revealStatus(stage, token, userData = undefined){
-        switch(stage){
-            case 'connected': 
+
+    function revealStatus(stage, token, userData = undefined) {
+        switch (stage) {
+            case 'connected':
                 getSpotifyData(token, 'https://api.spotify.com/v1/me/')
-                .then(rv => {
-                    session_data.userData = rv;
-                    return renderUserData(rv)
-                })
-                .then(userData => revealStatus('playlist summary', token, userData));
+                    .then(rv => {
+                        session_data.userData = rv;
+                        return renderUserData(rv)
+                    })
+                    .then(userData => revealStatus('playlist summary', token, userData));
                 break;
             case 'playlist summary':
-                getSpotifyData(token, `https://api.spotify.com/v1/users/${userData.id}/playlists?limit=50`)
-                .then(rv => renderPlaylistSummary(rv));
+                getPlaylistList(true);
                 break;
         }
     }
@@ -150,58 +167,120 @@ function run(){
     async function getSinglePlaylist(url) {
         const startTime = Date.now();
         const trackDump = await getSpotifyData(session_data.token, url)
-        .then(playlist => {
-            let bufferBank = [];
-            console.log('single playlist', playlist);
-            playlist.items.forEach(song =>{
-                //// let dateStreak = 0;
-                // console.log('song', song.track.uri, Date.parse(song.added_at));
-                bufferBank.push({
-                    title: song.track.name,
-                    artist: song.track.artists[0].name,
-                    uri: song.track.uri,
-                    date: song.added_at 
+            .then(playlist => {
+                let bufferBank = [];
+                // console.log('single playlist', playlist);
+                if(playlist.items === undefined) {
+                    console.log(playlist)
+                    return [];
+                }
+                playlist.items.forEach(song => {
+                    //// let dateStreak = 0;
+                    // console.log('song', song.track.uri, Date.parse(song.added_at));
+                    bufferBank.push({
+                        title: song.track.name,
+                        artist: song.track.artists[0].name,
+                        uri: song.track.uri,
+                        date: song.added_at
+                    })
+                    // console.log('song', bufferBank[bufferBank.length-1])
                 })
-                // console.log('song', bufferBank[bufferBank.length-1])
+                // resolve(bufferBank);
+                return bufferBank;
             })
-            // resolve(bufferBank);
-            return bufferBank;
-            // Array.prototype.push.apply(trackBank, bufferBank);
-        })
         console.log('time elapsed for playlist', Date.now() - startTime)
-        console.log('await return', trackDump);
+        // console.log('await return', trackDump);
         Array.prototype.push.apply(session_data.trackBank, trackDump)
-        return true;
+        return trackDump;
     }
 
-    function grabAllPlaylists(){
-        if(session_data.playlistData === undefined) 
-            return false; 
+    async function grabAllPlaylists() {
+        if (session_data.playlistData === undefined)
+            return false;
 
         let totalPlaylistLeft = session_data.playlistData.total;
         console.log(totalPlaylistLeft)
-        
+
         // First playlistData fetch of 50 playlists was to list 
         // for(let totalPlaylistLeft = session_data.playlistData.total; 
         //         totalPlaylistLeft > 50; 
         //         totalPlaylistLeft--         ){
-        for(let i = 0; i < totalPlaylistLeft % 50; i++){
-            let playlist_id = session_data.playlistData.items[i].id;
-            let url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
+
+        // * 
+        // *   ARRAY 
+        // *      OF 
+        // *        PROMISES!
+        // *                       each being a promise for a 50 playlist list 
+        // *                            Once a list is achieved, intiate another 
+        // *                             to scrape songs.  
+
+        let listRetrievals = []
+        // There will be 1 for every 50 songs.
+
+
+        let offset = 0;
+
+        for (let i = 0; i < Math.ceil(session_data.playlistData.total / 50) + 1; i++) {
+            // while(!fni)
+            let playlist_id;
+            let url;
 
             // Instead of returning anything,
             //   this will lopp through a playlist's tracks
-            //   saving all tracks to a 
-            getSinglePlaylist(url);
+            //   saving all tracks to a session_data key
+            console.log('pre-op playlist get list | Offset: ', offset);
+            // console.log(Math.ceil(session_data.playlistData.total / 50))
+            // * You're now working with a new list of playlists, in increments of <= 50
+            // const promise = 
+            const listPromise = new Promise(function (resolve, reject) {
+                console.log('searching at offset', offset);
+                getPlaylistList(false, offset)
+                    .then(newList => {
+                        console.log(newList)
+                        let playlistRetrieval = [];
+                        for (let j = 0; (j < 50) && (j < totalPlaylistLeft); j++) {
+                            playlist_id = newList.items[j].id;
+                            url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
+                            console.log('pulling playlist: ', newList.items[j].name);
+
+                            playlistRetrieval.push(
+                                // Returns promise for playlist tracks
+                                getSinglePlaylist(url).then(tracks => {
+                                    Array.prototype.push.apply(session_data.trackBank, tracks);
+                                    //// console.log('tracks', tracks)
+                                })
+                            )
+                        }
+
+                        return playlistRetrieval;  
+                    })
+                    .then(playlistPromises => {
+                        Promise.all(playlistPromises).then(status=>{
+                            console.log(`Offset: ${offset} complete`, status)
+                            resolve(`Offset: ${offset} complete`)
+                        })
+                    })
+            })
+            totalPlaylistLeft -= 50;
+            offset += 50;
+            listRetrievals.push(listPromise);
+            // TODO: REMOVE THIS AND MAKE WORKING FOR ALL PLAYLISTS
+            if(i === 2) break;
         }
-        //     totalPlaylistLeft -= 50;
+        console.log('finished caling promises. Am I still the fastest around');
+
+        Promise.all(listRetrievals)
+        .then(rv => { 
+            console.log('race over', rv) 
+            console.log(session_data.trackBank)
+        })
         //     // Find last page of playlists 
         //     if(totalPlaylistLeft < 1){
         //         totalPlaylistLeft *= -1;
         //     }
         // }
 
-        
+
 
         // for(let i = 0; i < Math.floor(session_data.playlistData.total / 50); i++){
         //     // Within a specific playlist
