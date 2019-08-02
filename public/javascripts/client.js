@@ -109,9 +109,9 @@ function run() {
         playlistElem.textContent = `You have ${data.total} playlists`;
     }
 
-    async function getPlaylistList(renderPlz = false, offset = 0, uid = session_data.userData.id, token = session_data.token) {
+    async function getPlaylistList(renderPlz = false, offset = 0, limit = 50, uid = session_data.userData.id, token = session_data.token) {
         console.log('calling for offset ', offset)
-        const url = `https://api.spotify.com/v1/users/${uid}/playlists?limit=50&offset=${offset}`;
+        const url = `https://api.spotify.com/v1/users/${uid}/playlists?limit=${limit}&offset=${offset}`;
         const plist = await getSpotifyData(token, url)
             .then(response => {
                 if (renderPlz)
@@ -222,7 +222,6 @@ function run() {
 
         for (let i = 0; i < Math.ceil(session_data.playlistData.total / 50) + 1; i++) {
             // while(!fni)
-            let playlist_id;
             let url;
 
             // Instead of returning anything,
@@ -234,18 +233,29 @@ function run() {
             // const promise = 
             const listPromise = new Promise(function (resolve, reject) {
                 console.log('searching at offset', offset);
-                getPlaylistList(false, offset)
+                const limiter = totalPlaylistLeft < 50 ? totalPlaylistLeft : 50;
+                getPlaylistList(false, offset, limiter)
                     .then(newList => {
                         console.log(newList)
                         let playlistRetrieval = [];
                         for (let j = 0; (j < 50) && (j < totalPlaylistLeft); j++) {
-                            playlist_id = newList.items[j].id;
-                            url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
-                            console.log('pulling playlist: ', newList.items[j].name);
+                            const playlist_id = newList.items[j].id;
+                            const url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
+                           
+
+                            if('the_sides' !== newList.items[j].owner.display_name){
+                                console.log(`#${i*50 + j}!!! NOT MY PLAYLIST !!! `, newList.items[j].name)
+                                continue;
+                            }
+                            else console.log(`#${i*50 + j}pulling playlist: `, newList.items[j].name);
 
                             playlistRetrieval.push(
                                 // Returns promise for playlist tracks
                                 getSinglePlaylist(url).then(tracks => {
+                                    // To prevent playlist not owned by user.
+                                    if(tracks === null) 
+                                        return 'other'; // Just breaks resolve callback
+
                                     Array.prototype.push.apply(session_data.trackBank, tracks);
                                     //// console.log('tracks', tracks)
                                 })
@@ -267,7 +277,7 @@ function run() {
             // TODO: REMOVE THIS AND MAKE WORKING FOR ALL PLAYLISTS
             if(i === 2) break;
         }
-        console.log('finished caling promises. Am I still the fastest around');
+        console.log('finished calling promises. Am I still the fastest around');
 
         Promise.all(listRetrievals)
         .then(rv => { 
