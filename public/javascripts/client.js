@@ -110,7 +110,7 @@ function run() {
     }
 
     async function getPlaylistList(renderPlz = false, offset = 0, limit = 50, uid = session_data.userData.id, token = session_data.token) {
-        console.log('calling for offset ', offset)
+        console.log(`calling for offset ${offset}, limit: ${limit}`)
         const url = `https://api.spotify.com/v1/users/${uid}/playlists?limit=${limit}&offset=${offset}`;
         const plist = await getSpotifyData(token, url)
             .then(response => {
@@ -230,11 +230,11 @@ function run() {
             console.log('pre-op playlist get list | Offset: ', offset);
             // console.log(Math.ceil(session_data.playlistData.total / 50))
             // * You're now working with a new list of playlists, in increments of <= 50
-            // const promise = 
+
             const listPromise = new Promise(function (resolve, reject) {
                 console.log('searching at offset', offset);
                 const limiter = totalPlaylistLeft < 50 ? totalPlaylistLeft : 50;
-                getPlaylistList(false, offset, limiter)
+                return getPlaylistList(false, offset, limiter)
                     .then(newList => {
                         console.log(newList)
                         let playlistRetrieval = [];
@@ -249,35 +249,42 @@ function run() {
                             }
                             else console.log(`#${i*50 + j}pulling playlist: `, newList.items[j].name);
 
-                            playlistRetrieval.push(
-                                // Returns promise for playlist tracks
-                                getSinglePlaylist(url).then(tracks => {
-                                    // To prevent playlist not owned by user.
-                                    if(tracks === null) 
-                                        return 'other'; // Just breaks resolve callback
+                            // Returns promise for playlist tracks
+                            getSinglePlaylist(url).then(tracks=>{
+                                console.log(`NEW TRACKS ${tracks.length}`)
+                                resolve(tracks)
+                            })
+                            // playlistRetrieval.push(
+                                // .then(tracks => {
+                                //     // To prevent playlist not owned by user.
+                                //     if(tracks === null) 
+                                //         return 'other'; // Just breaks resolve callback
 
-                                    Array.prototype.push.apply(session_data.trackBank, tracks);
-                                    //// console.log('tracks', tracks)
-                                })
-                            )
+                                //     Array.prototype.push.apply(session_data.trackBank, tracks);
+                                //     //// console.log('tracks', tracks)
+                                // })
+                            // )
                         }
+                        // console.log(`Playlist Retrieval | Offset, ${offset} `, playlistRetrieval)
+                        // return playlistRetrieval;  
+                    })
+                    // .then(playlistPromises => {
+                    //     Promise.all(playlistPromises).then(status=>{
+                    //         console.log(`Offset: ${offset} complete`, status)
+                    //         // resolve(`Offset: ${offset} complete`)
+                    //     })
+                    // })
+            })  // End Of Promise
 
-                        return playlistRetrieval;  
-                    })
-                    .then(playlistPromises => {
-                        Promise.all(playlistPromises).then(status=>{
-                            console.log(`Offset: ${offset} complete`, status)
-                            resolve(`Offset: ${offset} complete`)
-                        })
-                    })
-            })
+
+            // const listPromise = 
             totalPlaylistLeft -= 50;
             offset += 50;
             listRetrievals.push(listPromise);
             // TODO: REMOVE THIS AND MAKE WORKING FOR ALL PLAYLISTS
-            if(i === 2) break;
+            if(i === 3) break;
         }
-        console.log('finished calling promises. Am I still the fastest around');
+        console.log('finished calling promises. Am I still the fastest around', listRetrievals);
 
         Promise.all(listRetrievals)
         .then(rv => { 
