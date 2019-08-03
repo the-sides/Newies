@@ -56,12 +56,11 @@ function run() {
         console.log('User data confirmed.\nPulling all playlists...')
 
         grabAllPlaylists()
-        //// .then(
-        ////     function(response){
-        ////         console.log('FINAL REPORT. length and then parma ', 
-        ////             session_data.trackBank.length, response)
-        ////     }
-        //// );
+        .then((response) => {
+            renderStatus('all playlists', response);
+            sortSongs(response);
+            }
+        );
     }
 
     function renderUserData(userData) {
@@ -123,7 +122,7 @@ function run() {
         return plist;
     }
 
-    function getSpotifyData(_token, url) {
+    function getSpotifyData(_token = session_data.token, url) {
         return new Promise(function (resolve, reject) {
             let headerss = new Headers({
                 'Accept': 'application/json',
@@ -198,14 +197,6 @@ function run() {
         if (session_data.playlistData === undefined)
             return false;
 
-        let totalPlaylistLeft = session_data.playlistData.total;
-        console.log(totalPlaylistLeft)
-
-        // First playlistData fetch of 50 playlists was to list 
-        // for(let totalPlaylistLeft = session_data.playlistData.total; 
-        //         totalPlaylistLeft > 50; 
-        //         totalPlaylistLeft--         ){
-
         // * 
         // *   ARRAY 
         // *      OF 
@@ -214,96 +205,34 @@ function run() {
         // *                            Once a list is achieved, intiate another 
         // *                             to scrape songs.  
 
-        let listRetrievals = []
-        // There will be 1 for every 50 songs.
-
-
+        let totalPlaylistLeft = session_data.playlistData.total;
         let offset = 0;
+        let listRetrievals = []
 
         for (let i = 0; i < Math.ceil(session_data.playlistData.total / 50) + 1; i++) {
-            // while(!fni)
-            let url;
+            const limiter = totalPlaylistLeft < 50 ? totalPlaylistLeft : 50;
+            const listOf50 = getPlaylistList(false, offset, limiter)
 
-            // Instead of returning anything,
-            //   this will lopp through a playlist's tracks
-            //   saving all tracks to a session_data key
-            console.log('pre-op playlist get list | Offset: ', offset);
-            // console.log(Math.ceil(session_data.playlistData.total / 50))
-            // * You're now working with a new list of playlists, in increments of <= 50
-
-            const listPromise = new Promise(function (resolve, reject) {
-                console.log('searching at offset', offset);
-                const limiter = totalPlaylistLeft < 50 ? totalPlaylistLeft : 50;
-                return getPlaylistList(false, offset, limiter)
-                    .then(newList => {
-                        console.log(newList)
-                        let playlistRetrieval = [];
-                        for (let j = 0; (j < 50) && (j < totalPlaylistLeft); j++) {
-                            const playlist_id = newList.items[j].id;
-                            const url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`;
-                           
-
-                            if('the_sides' !== newList.items[j].owner.display_name){
-                                console.log(`#${i*50 + j}!!! NOT MY PLAYLIST !!! `, newList.items[j].name)
-                                continue;
-                            }
-                            else console.log(`#${i*50 + j}pulling playlist: `, newList.items[j].name);
-
-                            // Returns promise for playlist tracks
-                            getSinglePlaylist(url).then(tracks=>{
-                                console.log(`NEW TRACKS ${tracks.length}`)
-                                resolve(tracks)
-                            })
-                            // playlistRetrieval.push(
-                                // .then(tracks => {
-                                //     // To prevent playlist not owned by user.
-                                //     if(tracks === null) 
-                                //         return 'other'; // Just breaks resolve callback
-
-                                //     Array.prototype.push.apply(session_data.trackBank, tracks);
-                                //     //// console.log('tracks', tracks)
-                                // })
-                            // )
-                        }
-                        // console.log(`Playlist Retrieval | Offset, ${offset} `, playlistRetrieval)
-                        // return playlistRetrieval;  
-                    })
-                    // .then(playlistPromises => {
-                    //     Promise.all(playlistPromises).then(status=>{
-                    //         console.log(`Offset: ${offset} complete`, status)
-                    //         // resolve(`Offset: ${offset} complete`)
-                    //     })
-                    // })
-            })  // End Of Promise
-
-
-            // const listPromise = 
             totalPlaylistLeft -= 50;
             offset += 50;
-            listRetrievals.push(listPromise);
-            // TODO: REMOVE THIS AND MAKE WORKING FOR ALL PLAYLISTS
+            listRetrievals.push(listOf50);
+
             if(i === 3) break;
         }
-        console.log('finished calling promises. Am I still the fastest around', listRetrievals);
+        // console.log('finished calling promises. Am I still the fastest around', listRetrievals);
 
-        Promise.all(listRetrievals)
+        const allLists = await Promise.all(listRetrievals)
         .then(rv => { 
             console.log('race over', rv) 
-            console.log(session_data.trackBank)
+            return rv;
         })
-        //     // Find last page of playlists 
-        //     if(totalPlaylistLeft < 1){
-        //         totalPlaylistLeft *= -1;
-        //     }
-        // }
+        return allLists;
+    }
 
-
-
-        // for(let i = 0; i < Math.floor(session_data.playlistData.total / 50); i++){
-        //     // Within a specific playlist
-        //     // for(let trackIndex = 0;)
-        // }
-
+    async function sortSongs(list50){
+        list50.items.forEach((playlist) => {
+            if(playlist['collaborative'] ===)
+        })
     }
 
     // Event Listeners
