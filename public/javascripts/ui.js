@@ -42,4 +42,8 @@ function displayPlaylistCount(total) {
     playlistElem.textContent = `You have ${total} playlists`;
 }
 
-export {displayUser, displayPlaylistCount}
+function initRing(total){
+    return total;
+}
+
+export {displayUser, displayPlaylistCount, initRing}
