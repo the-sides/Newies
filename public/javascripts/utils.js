@@ -17,6 +17,23 @@ function checkToken(cb){
     return null;
 
 }
+
+// A checker function. 
+function generateVerify(_session_data, cb) {
+    if (_session_data.token === -1)
+        return false;
+
+    console.log('User Authenticated', _session_data);
+
+    if (_session_data.userData === undefined) {
+        console.log('user data not found')
+        return false;
+    }
+    console.log('User data confirmed.\nPulling all playlists...')
+
+    cb()
+}
+
 async function sortSongs(list50s, user, ){
     list50s.forEach((playlist) => {
         // Some pseudo code for all you beautiful people out there (aka future jacob)
@@ -36,7 +53,7 @@ async function sortSongs(list50s, user, ){
     })
 }
 
-function trackStripper(list, user, collab) {
+function trackStripper(list, user) {
     let bufferBank = [];
     list.items.forEach(song => {
         //// let dateStreak = 0;
@@ -53,40 +70,5 @@ function trackStripper(list, user, collab) {
 }
 
 
-async function grabAllPlaylists() {
-    if (session_data.playlistData === undefined)
-        return false;
 
-    // * 
-    // *   ARRAY 
-    // *      OF 
-    // *        PROMISES!
-    // *                       each being a promise for a 50 playlist list 
-    // *                            Once a list is achieved, intiate another 
-    // *                             to scrape songs.  
-
-    let totalPlaylistLeft = session_data.playlistData.total;
-    let offset = 0;
-    let listRetrievals = []
-
-    for (let i = 0; i < Math.ceil(session_data.playlistData.total / 50) + 1; i++) {
-        const limiter = totalPlaylistLeft < 50 ? totalPlaylistLeft : 50;
-        const listOf50 = getPlaylistList(false, offset, limiter)
-
-        totalPlaylistLeft -= 50;
-        offset += 50;
-        listRetrievals.push(listOf50);
-
-        if(i === 3) break;
-    }
-    // console.log('finished calling promises. Am I still the fastest around', listRetrievals);
-
-    const allLists = await Promise.all(listRetrievals)
-    .then(rv => { 
-        console.log('race over', rv) 
-        return rv;
-    })
-    return allLists;
-}
-
-export {checkToken, sortSongs, trackStripper, grabAllPlaylists};
+export {checkToken, generateVerify, sortSongs, trackStripper};

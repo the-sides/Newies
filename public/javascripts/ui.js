@@ -1,5 +1,5 @@
 
-function introduceUser(display_name) {
+function displayUser(display_name) {
     console.log('User Connected', display_name)
     const statusElem = document.querySelector('.welcomeStatus');
     const scroller = [...document.querySelectorAll('.contentBeneath')];
@@ -42,4 +42,4 @@ function displayPlaylistCount(total) {
     playlistElem.textContent = `You have ${total} playlists`;
 }
 
-export {introduceUser, displayPlaylistCount}
+export {displayUser, displayPlaylistCount}
