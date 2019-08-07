@@ -41,19 +41,31 @@ function getSpotifyData(_token, url) {
             .catch(error => reject(error))
     })
 }
+/**
+ *   getTracks(token, href)
+ *      Will take the url to a playlist and produce a promise for all the tracks.
+ */
+async function getTracks(_token, href){
+    // const url =
+    return await(getSpotifyData(_token, href))
+}
 
 async function getPlaylistList(_uid , _token, offset = 0, limit = 50) {
     console.log(`requesting playlist at offset ${offset}, limit: ${limit}`)
     const url = `https://api.spotify.com/v1/users/${_uid}/playlists?limit=${limit}&offset=${offset}`;
 
-    // TODO: Try `return await getSpo...` once things are working. Lose plist.
     return await getSpotifyData(_token, url)
             .then(response => {
                 return response;
             })
 }
 
-
+/*
+ * 
+ * @param {String} uid 
+ * @param {String} token 
+ * @param {Number} nPlaylists 
+ */
 async function getAllPlaylists(uid, token, nPlaylists) {
 
     // *   ARRAY 
@@ -67,7 +79,7 @@ async function getAllPlaylists(uid, token, nPlaylists) {
     let offset = 0;
     let listRetrievals = []
 
-    for (let i = 0; i < Math.ceil(nPlaylists / 50) + 1; i++) {
+    for (let i = 0; i < Math.ceil(nPlaylists / 50) ; i++) {
         const limiter = totalPlaylistLeft < 50 ? totalPlaylistLeft : 50;
         const listOf50 = getPlaylistList(uid, token, offset, limiter);
 
@@ -76,7 +88,7 @@ async function getAllPlaylists(uid, token, nPlaylists) {
         listRetrievals.push(listOf50);
 
         // Getting rid of this = WIN
-        if(i === 3) break;
+        // if(i === 3) break;
     }
 
     const allLists = await Promise.all(listRetrievals)
@@ -88,4 +100,4 @@ async function getAllPlaylists(uid, token, nPlaylists) {
 }
 
 
-export {fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists}
+export {fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists, getTracks}
