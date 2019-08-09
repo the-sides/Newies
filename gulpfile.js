@@ -51,6 +51,12 @@ function scripts(){
             .pipe(sourcemaps.write())
             .pipe(dest('dist/scripts/'));
 }
+
+function vendors(){
+        return src([])
+        .pipe(dest('dist/vendors/'))
+}
+
 function images(){
     return src(['./src/images/**/**'])
             .pipe(dest('dist/images/'))
