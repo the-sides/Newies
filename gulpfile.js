@@ -28,7 +28,8 @@ async function nodemonTask(cb) {
             ext: 'js html', 
             env: { 'NODE_ENV': 'development' }, 
             port: 3000, 
-            done: cb()
+            done: cb(),
+            open: false,
         })//.once('start', cb);
 
 };
@@ -73,9 +74,9 @@ const devBuild = series(
 
 async function watcher(){
     watch(['./src/styles/**/*.scss'], styles )
-    watch( [ `./src/scripts/**/**`, `./src/views/**/*.pug`], ()=>{
+    watch( [ `./src/scripts/*.js`, `./src/views/**/*.pug`], ()=>{
         series(
-            dev(),
+            devBuild(),
             setTimeout(browserSync.reload,2000)
             )
 
