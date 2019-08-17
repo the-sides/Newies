@@ -1,4 +1,4 @@
-const {src, dest, series, parallel} = require('gulp')
+const { src, dest, series, parallel } = require('gulp')
 const watch = require('glob-watcher')
 const webpack = require('webpack-stream')
 const browserSync = require('browser-sync').create();
@@ -8,81 +8,82 @@ const named = require('vinyl-named')
 const sourcemaps = require('gulp-sourcemaps');
 const sass = require('gulp-sass');
 
-function clean(){
+function clean() {
     return del([
         './dist/scripts/**',
         './dist/styles/**'
     ])
 }
 
-async function bsTask(){
+async function bsTask() {
     console.log('this is bs');
     return browserSync.init({
-        proxy: "localhost:3000", 
+        proxy: "localhost:3000",
         port: 3001
     })
 }
 async function nodemonTask(cb) {
-        return nodemon( {
-            script: './bin/www', 
-            ext: 'js html', 
-            env: { 'NODE_ENV': 'development' }, 
-            port: 3000, 
-            done: cb(),
-            open: false,
-        })//.once('start', cb);
+    return nodemon({
+        script: './bin/www',
+        ext: 'js html',
+        env: { 'NODE_ENV': 'development' },
+        port: 3000,
+        done: cb(),
+        open: false,
+    })//.once('start', cb);
 
 };
 
 
-function styles(){
+function styles() {
     return src('./src/styles/**/*.scss')
-            .pipe(sass().on('error', sass.logError))
-            .pipe(dest('dist/styles/'))
-            .pipe(browserSync.stream())
-}
-function scripts(){
-    return src(['./src/scripts/client.js'
-               ])
-            .pipe(sourcemaps.init())
-            .pipe(named())
-            .pipe(webpack({
-                mode: 'development'
-            }))
-            .pipe(sourcemaps.write())
-            .pipe(dest('dist/scripts/'));
+        .pipe(sass().on('error', sass.logError))
+        .pipe(dest('dist/styles/'))
+        .pipe(browserSync.stream())
 }
 
-function vendors(){
-        return src([])
+function scripts() {
+    return src(['./src/scripts/client.js'
+    ])
+        .pipe(sourcemaps.init())
+        .pipe(named())
+        .pipe(webpack({
+            mode: 'development'
+        }))
+        .pipe(sourcemaps.write())
+        .pipe(dest('dist/scripts/'));
+}
+
+function vendors() {
+    return src([])
         .pipe(dest('dist/vendors/'))
 }
 
-function images(){
+function images() {
     return src(['./src/images/**/**'])
-            .pipe(dest('dist/images/'))
+        .pipe(dest('dist/images/'))
 }
 
 const devBuild = series(
-    clean, 
-    scripts, 
+    clean,
+    scripts,
     parallel(
-        styles, 
+        styles,
         images
-        )
     )
+)
 
-async function watcher(){
-    watch(['./src/styles/**/*.scss'], styles )
-    watch( [ `./src/scripts/*.js`, `./src/views/**/*.pug`], ()=>{
+async function watcher() {
+    watch(['./src/styles/**/*.scss'], styles)
+    watch([`./src/scripts/*.js`, `./src/views/**/*.pug`], () => {
         series(
             devBuild(),
-            setTimeout(browserSync.reload,2000)
-            )
+            setTimeout(browserSync.reload, 2000)
+        )
     });
 }
 
 
 const run = series(devBuild, watcher, nodemonTask, bsTask);
 
-module.exports = {devBuild, watcher, run}
+module.exports = { devBuild, watcher, run }

@@ -1,8 +1,8 @@
-import {getTracks} from './spotifyAPI.js';
+import { getTracks } from './spotifyAPI.js';
 /**
  *   checkToken 
  */
-function checkToken(cb){
+function checkToken(cb) {
     let token = window.location.href.indexOf("access_token=");
     if (token !== -1) {
         // Info found in url
@@ -43,22 +43,22 @@ function generateVerify(_session_data, cb) {
  * 
  *  @param {array} _50s 
  */
-async function filterPlaylists(_token, _50s){
+async function filterPlaylists(_token, _50s) {
     let trackPromises = [];
     let throttle = 100;
-    for(let i = 0; i < _50s.length; i++){
-        if(_50s[i].error) {
+    for (let i = 0; i < _50s.length; i++) {
+        if (_50s[i].error) {
             console.error(_50s[i].error)
             continue;
         }
 
         // Throttle sets of 50 to prevent API lockout.
         // setTimeout(()=>{
-            for(let j = 0; j < _50s[i].items.length; j++){
-                if(_50s[i].items[j].collaborative === false){
-                    trackPromises.push(getTracks(_token, _50s[i].items[j].tracks.href))
-                }
+        for (let j = 0; j < _50s[i].items.length; j++) {
+            if (_50s[i].items[j].collaborative === false) {
+                trackPromises.push(getTracks(_token, _50s[i].items[j].tracks.href))
             }
+        }
 
     }
     console.log(trackPromises)
@@ -66,8 +66,8 @@ async function filterPlaylists(_token, _50s){
     return await Promise.all(trackPromises)
 
 }
-async function sortTracks(tracks, user, sortBy ){ return true;}
-async function filterTracks(tracks, user ){
+async function sortTracks(tracks, user, sortBy) { return true; }
+async function filterTracks(tracks, user) {
     let trackBank = []
     tracks.forEach((playlist) => {
         trackBank = trackBank.concat(trackStripper(playlist))
@@ -90,10 +90,11 @@ async function filterTracks(tracks, user ){
 }
 
 function trackStripper(list, user = undefined, collab = false) {
-    if(list === undefined) throw new Error("Can't strip an undefined list ¯\\_(ツ)_/¯")
+    if (list === undefined) 
+        throw new Error("Can't strip an undefined list ¯\\_(ツ)_/¯")
     let bufferBank = [];
 
-    function parseSong(song){
+    function parseSong(song) {
         return {
             title: song.track.name,
             artist: song.track.artists[0].name,
@@ -102,12 +103,12 @@ function trackStripper(list, user = undefined, collab = false) {
         }
     }
     // console.log(list)
-    if(!collab){
+    if (!collab) {
         list.items.forEach(song => {
             bufferBank.push(parseSong(song))
         })
     }
-    else{
+    else {
         list.items.forEach(song => {
             bufferBank.push(parseSong(song))
         })
@@ -119,4 +120,4 @@ function trackStripper(list, user = undefined, collab = false) {
 
 
 
-export {checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks};
+export { checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks };

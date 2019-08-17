@@ -8,23 +8,24 @@ function fetchAutho() {
         'playlist-modify-public',
         'playlist-read-collaborative',
     ]
-    const url = `http://127.0.0.1:${port}`; 
+    const url = `http://127.0.0.1:${port}`;
 
     window.location = "https://accounts.spotify.com/authorize?"
         + "client_id=9ae70c7a06b14e38bc355c0b4e7f8d42&"
-        + "redirect_uri=" 
-        +  url
-        + "&scope=" 
-        + scopes.join('%20') 
+        + "redirect_uri="
+        + url
+        + "&scope="
+        + scopes.join('%20')
         + "&response_type=token&state=123";
 }
-function errorCheckResponse(_result, _probation){
-    if(_result.status == 200){
-        if(_probation) console.log(`Retry successful; Attempts: ${2}`)
-        return _result; 
+function errorCheckResponse(_result, _probation) {
+    // Success
+    if (_result.status == 200) {
+        if (_probation) console.log(`Retry successful; Attempts: ${2}`)
+        return _result;
     }
     // Only reached on a failed attempt
-    if(_probation) throw new Error(`Bad Request after ${2} attempts ${_result.status}`)
+    if (_probation) throw new Error(`Bad Request after ${2} attempts ${_result.status}`)
     else {
         console.error('trying again in 2 secs...');
         return false;
@@ -43,18 +44,18 @@ function getSpotifyData(_token, url, throttleBy = 0, probation = false) {
             mode: 'cors',
             headers: headerss
         })
-        setTimeout(()=>{
+        setTimeout(() => {
             fetch(spotifyRequest)
                 .then(
-                    result => { 
+                    result => {
                         // errorCheckResponse will return the same result if valid
                         const response = errorCheckResponse(result, probation)
 
-                        if(response === false)  // Keep trying...
+                        if (response === false)  // Keep trying...
                             return getSpotifyData(_token, url, 2000, true)
 
                         // Success
-                        else 
+                        else
                             return response.json();
                     }
                 )
@@ -62,7 +63,7 @@ function getSpotifyData(_token, url, throttleBy = 0, probation = false) {
                     (json) => resolve(json)
                 )
                 .catch(error => {
-                    console.error('Error caught at data fetch'); 
+                    console.error('Error caught at data fetch');
                     reject(error)
                 })
         }, throttleBy)
@@ -76,16 +77,16 @@ function getSpotifyData(_token, url, throttleBy = 0, probation = false) {
  *   getTracks(token, href)
  *      Will take the url to a playlist and produce a promise for all the tracks.
  */
-async function getTracks(_token, href){
-    return await(getSpotifyData(_token, href))
+async function getTracks(_token, href) {
+    return await (getSpotifyData(_token, href))
 }
 
-async function getPlaylistList(_uid , _token, offset = 0, limit = 50) {
+async function getPlaylistList(_uid, _token, offset = 0, limit = 50) {
     console.log(`requesting playlist at offset ${offset}, limit: ${limit}`)
     const url = `https://api.spotify.com/v1/users/${_uid}/playlists?limit=${limit}&offset=${offset}`;
 
     return await getSpotifyData(_token, url)
-            .catch(err=> {console.error('caught in listlist',err); })
+        .catch(err => { console.error('caught in listlist', err); })
 }
 
 /*
@@ -107,7 +108,7 @@ async function getAllPlaylists(uid, token, nPlaylists) {
     let offset = 0;
     let listRetrievals = []
 
-    for (let i = 0; i < Math.ceil(nPlaylists / 50) ; i++) {
+    for (let i = 0; i < Math.ceil(nPlaylists / 50); i++) {
         const limiter = totalPlaylistLeft < 50 ? totalPlaylistLeft : 50;
         const listOf50 = getPlaylistList(uid, token, offset, limiter);
 
@@ -120,15 +121,15 @@ async function getAllPlaylists(uid, token, nPlaylists) {
     }
 
     const allLists = await Promise.all(listRetrievals)
-    .then(rv => { 
-        console.log('race over', rv) 
-        return rv;
-    })
-    .catch(rv => {
-        console.error('One of allLists failed', rv)
-    })
+        .then(rv => {
+            console.log('race over', rv)
+            return rv;
+        })
+        .catch(rv => {
+            console.error('One of allLists failed', rv)
+        })
     return allLists;
 }
 
 
-export {fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists, getTracks}
+export { fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists, getTracks }
