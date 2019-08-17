@@ -1,6 +1,6 @@
 import {checkToken, generateVerify, sortSongs, trackStripper, filterPlaylists, filterTracks} from './utils.js'
 import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList} from './spotifyAPI.js'
-import {displayUser, displayPlaylistCount, initRing} from './ui.js'
+import {displayUser, displayPlaylistCount, initRing, revealFeed} from './ui.js'
 
 const session_data = {
     token: undefined,
@@ -20,6 +20,7 @@ function run() {
             .then(userdata =>{
                 session_data.userData = userdata;
                 displayUser(userdata.display_name);
+                revealFeed();
                 getPlaylistList(userdata.id, token).then((listOf50)=>{
                     session_data.nPlaylists = listOf50.total;
                     displayPlaylistCount(listOf50.total);

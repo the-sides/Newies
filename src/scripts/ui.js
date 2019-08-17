@@ -42,8 +42,12 @@ function displayPlaylistCount(total) {
     playlistElem.textContent = `You have ${total} playlists`;
 }
 
-function initRing(total){
+function initRing(total) {
     return total;
 }
 
-export {displayUser, displayPlaylistCount, initRing}
+function revealFeed() {
+    const feed = document.querySelector('.feed');
+    feed.classList.remove('feed--hidden');
+}
+export { displayUser, displayPlaylistCount, initRing, revealFeed }
