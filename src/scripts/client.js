@@ -1,4 +1,4 @@
-import {checkToken, generateVerify, sortSongs, trackStripper, filterPlaylists} from './utils.js'
+import {checkToken, generateVerify, sortSongs, trackStripper, filterPlaylists, filterTracks} from './utils.js'
 import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList} from './spotifyAPI.js'
 import {displayUser, displayPlaylistCount, initRing} from './ui.js'
 
@@ -42,8 +42,10 @@ function run() {
             getAllPlaylists(session_data.userData.id, session_data.token, 183)
             .then((list50s)=>{
                 filterPlaylists(session_data.token, list50s)
-                .then((trackDump)=>
-                    sortSongs(trackDump, session_data.userData, 'date'))
+                .then((trackDump)=>{
+                    filterTracks(trackDump, session_data.userData, 'date')
+                    .then(formattedTracks => console.log(formattedTracks))
+                })
             })
         })
     })

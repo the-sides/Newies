@@ -47,7 +47,10 @@ async function filterPlaylists(_token, _50s){
     let trackPromises = [];
     let throttle = 100;
     for(let i = 0; i < _50s.length; i++){
-        if(_50s[i].error) continue;
+        if(_50s[i].error) {
+            console.error(_50s[i].error)
+            continue;
+        }
 
         // Throttle sets of 50 to prevent API lockout.
         // setTimeout(()=>{
@@ -57,23 +60,19 @@ async function filterPlaylists(_token, _50s){
                 }
             }
 
-        // },0)
-        // if(i === 2) break
     }
     console.log(trackPromises)
 
     return await Promise.all(trackPromises)
 
 }
-
-async function sortSongs(tracks, user, sortBy ){
-    // if(!!true) return false;
+async function sortTracks(tracks, user, sortBy ){ return true;}
+async function filterTracks(tracks, user ){
     let trackBank = []
     tracks.forEach((playlist) => {
-        // Some pseudo code for all you beautiful people out there (aka future jacob)
-        
         trackBank = trackBank.concat(trackStripper(playlist))
 
+        // Some pseudo code for all you beautiful people out there (aka future jacob)
         // Check each playlist to find the owner.
         //    if one owners && [0]=={{user}}
                 //     trackStrip()
@@ -87,12 +86,13 @@ async function sortSongs(tracks, user, sortBy ){
         // }
 
     })
-    console.log(trackBank)
+    return await trackBank;
 }
 
 function trackStripper(list, user = undefined, collab = false) {
+    if(list === undefined) throw new Error("Can't strip an undefined list ¯\\_(ツ)_/¯")
     let bufferBank = [];
-    let i = 0;
+
     function parseSong(song){
         return {
             title: song.track.name,
@@ -101,7 +101,7 @@ function trackStripper(list, user = undefined, collab = false) {
             date: song.added_at
         }
     }
-    console.log(list)
+    // console.log(list)
     if(!collab){
         list.items.forEach(song => {
             bufferBank.push(parseSong(song))
@@ -109,7 +109,6 @@ function trackStripper(list, user = undefined, collab = false) {
     }
     else{
         list.items.forEach(song => {
-            if(++i === 1) console.log(song)
             bufferBank.push(parseSong(song))
         })
         // Filter for songs that belong to this user
@@ -120,4 +119,4 @@ function trackStripper(list, user = undefined, collab = false) {
 
 
 
-export {checkToken, generateVerify, sortSongs, trackStripper, filterPlaylists};
+export {checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks};

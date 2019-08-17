@@ -1,5 +1,6 @@
 function fetchAutho() {
     // Send user to a Spotify authorization site to redirect with an autho token
+    const port = 3001;
     const scopes = [
         'playlist-read-private',
         'user-read-recently-played',
@@ -7,7 +8,7 @@ function fetchAutho() {
         'playlist-modify-public',
         'playlist-read-collaborative',
     ]
-    const url = 'http://127.0.0.1:3000'; 
+    const url = `http://127.0.0.1:${port}`; 
 
     window.location = "https://accounts.spotify.com/authorize?"
         + "client_id=9ae70c7a06b14e38bc355c0b4e7f8d42&"
@@ -17,8 +18,20 @@ function fetchAutho() {
         + scopes.join('%20') 
         + "&response_type=token&state=123";
 }
+function errorCheckResponse(_result, _probation){
+    if(_result.status == 200){
+        if(_probation) console.log(`Retry successful; Attempts: ${2}`)
+        return _result; 
+    }
+    // Only reached on a failed attempt
+    if(_probation) throw new Error(`Bad Request after ${2} attempts ${_result.status}`)
+    else {
+        console.error('trying again in 2 secs...');
+        return false;
+    }
+}
 
-function getSpotifyData(_token, url) {
+function getSpotifyData(_token, url, throttleBy = 0, probation = false) {
     return new Promise(function (resolve, reject) {
         let headerss = new Headers({
             'Accept': 'application/json',
@@ -30,23 +43,40 @@ function getSpotifyData(_token, url) {
             mode: 'cors',
             headers: headerss
         })
+        setTimeout(()=>{
+            fetch(spotifyRequest)
+                .then(
+                    result => { 
+                        // errorCheckResponse will return the same result if valid
+                        const response = errorCheckResponse(result, probation)
 
-        fetch(spotifyRequest)
-            .then(
-                result => { return result.json() }
-            )
-            .then(
-                (json) => resolve(json)
-            )
-            .catch(error => reject(error))
+                        if(response === false)  // Keep trying...
+                            return getSpotifyData(_token, url, 2000, true)
+
+                        // Success
+                        else 
+                            return response.json();
+                    }
+                )
+                .then(
+                    (json) => resolve(json)
+                )
+                .catch(error => {
+                    console.error('Error caught at data fetch'); 
+                    reject(error)
+                })
+        }, throttleBy)
     })
 }
+
+////////////////////////////////////////////////
+//      getSpotifyData wrappers
+////////////////////////////////////////////////
 /**
  *   getTracks(token, href)
  *      Will take the url to a playlist and produce a promise for all the tracks.
  */
 async function getTracks(_token, href){
-    // const url =
     return await(getSpotifyData(_token, href))
 }
 
@@ -55,9 +85,7 @@ async function getPlaylistList(_uid , _token, offset = 0, limit = 50) {
     const url = `https://api.spotify.com/v1/users/${_uid}/playlists?limit=${limit}&offset=${offset}`;
 
     return await getSpotifyData(_token, url)
-            .then(response => {
-                return response;
-            })
+            .catch(err=> {console.error('caught in listlist',err); })
 }
 
 /*
@@ -95,6 +123,9 @@ async function getAllPlaylists(uid, token, nPlaylists) {
     .then(rv => { 
         console.log('race over', rv) 
         return rv;
+    })
+    .catch(rv => {
+        console.error('One of allLists failed', rv)
     })
     return allLists;
 }
