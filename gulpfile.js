@@ -15,13 +15,21 @@ function clean() {
     ])
 }
 
-async function bsTask() {
+async function bsTask(){
     console.log('this is bs');
     return browserSync.init({
-        proxy: "localhost:3000",
-        port: 3001
-    })
+        proxy: "localhost:3000", 
+        port: 3001,
+        open: false,  
+        }, 
+        ()=>{
+            // Don't open new window, 
+            //   but reload existing windows on reboot
+            browserSync.reload();
+        }
+    )
 }
+
 async function nodemonTask(cb) {
     return nodemon({
         script: './bin/www',
@@ -29,7 +37,6 @@ async function nodemonTask(cb) {
         env: { 'NODE_ENV': 'development' },
         port: 3000,
         done: cb(),
-        open: false,
     })//.once('start', cb);
 
 };
@@ -75,7 +82,7 @@ const devBuild = series(
 
 async function watcher() {
     watch(['./src/styles/**/*.scss'], styles)
-    watch([`./src/scripts/*.js`, `./src/views/**/*.pug`], () => {
+    watch([`./src/scripts/*.js`, `./src/views/**/*.ejs`], () => {
         series(
             devBuild(),
             setTimeout(browserSync.reload, 2000)
