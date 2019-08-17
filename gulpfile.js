@@ -79,7 +79,6 @@ async function watcher(){
             devBuild(),
             setTimeout(browserSync.reload,2000)
             )
-
     });
 }
 
