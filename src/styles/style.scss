@@ -1,3 +1,5 @@
+@import 'animations';
+
 html, body{
   height: 100%;
 }
@@ -28,10 +30,9 @@ a {
   // max-width: 60vw;
   text-align: center;
   flex: 1;
-  *{
-    margin: auto;
-  }
 }
+
+
 .feed{
   // min-width: 30vw;  
   // min-height: 80vh;
@@ -50,6 +51,26 @@ a {
     width: 100%;
     height: 100%;
   }
+  .infoPanel{
+    margin: 0.4em;
+    padding: 0.2em;
+    display: flex;
+    flex-direction: row;
+    .userPhoto{
+      img{
+        clip-path: circle(40%);
+        max-height: 128px;
+        width: auto;
+      }
+      // margin: 10%;
+      flex: 1
+    }
+    .content{
+      flex: 4;
+      margin: auto;
+    }
+
+  }
 }
 
 .userInput{
@@ -57,8 +78,9 @@ a {
 }
 
 .userInfo{
-  width: 80%;
+  // width: 80%;
   margin: 0 auto;
+  @include typewriter;
 }
 
 .welcomeStatus{
@@ -66,8 +88,12 @@ a {
 .contentBeneath{
   height: 0;
   display: none;
-  overflow: hidden;
 }
+.playlistCount{
+  overflow: hidden;
+  white-space: nowrap; /* Keeps the content on a single line */
+}
+
 .revealed{
   transition: height 500ms ease-in-out;
   display: block;

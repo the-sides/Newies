@@ -19,8 +19,9 @@ function run() {
             getSpotifyData(token, 'https://api.spotify.com/v1/me/')
             .then(userdata =>{
                 session_data.userData = userdata;
-                displayUser(userdata.display_name);
+                console.log(userdata)
                 revealFeed();
+                displayUser(userdata);
                 getPlaylistList(userdata.id, token).then((listOf50)=>{
                     session_data.nPlaylists = listOf50.total;
                     displayPlaylistCount(listOf50.total);
