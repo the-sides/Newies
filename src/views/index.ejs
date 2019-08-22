@@ -3,19 +3,17 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/styles/style.css' />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="icon" href="/images/favicon.ico">
 
   </head>
   <body>
     <script src="/scripts/client.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
     <div id="container">
       <section class="gui">
-        <h2><%= title %></h2>
-        <h3>What's Moving?</h3>
+        <h1><%= title %></h1>
+        <h2>What's Moving?</h2>
         <a href="/">
           <svg class="App-logo" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://web.resource.org/cc/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:ns1="http://sozi.baierouge.fr" version="1.1" xml:space="preserve" enable-background="new 0 0 65 65" y="0px" x="0px" viewBox="0 0 65 65">
           <g id="Layer_3_copy_2">
@@ -27,21 +25,18 @@
           </svg>
         </a>
         <section class="userInput">
-          <a class="waves-effect waves-light btn" id='authoBtn'><i class="material-icons right">account_box</i>Connect Spotify</a>
-          <a class="waves-effect waves-light btn" id="generateBtn">Generate Playlist</a>
+          <a class="button" id='authoBtn'>Connect Spotify</a>
+          <a class="button" id="pullTracksBtn">Pull Tracks</a>
+          <a class="button" id="generateBtn">Generate Playlist</a>
         </section>
       </section>
       <section class="feed feed--hidden">
         <div class="feed__backdrop">
-          <div class="listItem">
-            <div class="infoPanel">
-              <figure class="userPhoto">
-                <img src="" alt="User Photo">
-              </figure>
-              <div class="content">
-                <p class="playlistCount">the-sides</p>
-              </div>
-            </div>
+          <div class="infoPanel">
+            <figure class="userPhoto">
+              <img src="" alt="">
+            </figure>
+            <p class="playlistCount"></p>
           </div>
         </div>
       </section>
