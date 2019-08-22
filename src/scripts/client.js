@@ -1,5 +1,5 @@
-import {checkToken, generateVerify, sortSongs, trackStripper, filterPlaylists, filterTracks} from './utils.js'
-import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList} from './spotifyAPI.js'
+import {checkToken, generateVerify, sortSongs, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist} from './utils.js'
+import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList } from './spotifyAPI.js'
 import {displayUser, displayPlaylistCount, initRing, revealFeed} from './ui.js'
 
 const session_data = {
@@ -34,15 +34,14 @@ function run() {
     //* Queries
     const authorizeBtn = document.getElementById('authoBtn');
     const generateBtn = document.getElementById('generateBtn');
+    const pullTracksBtn = document.getElementById('pullTracksBtn');
 
-
-    // Event Listeners
-    authorizeBtn.addEventListener('mouseup', fetchAutho)
-    generateBtn.addEventListener('mouseup', ()=>{
+    function pullTracks(){
         generateVerify(session_data, ()=>{
             // All systems are a go
-            getAllPlaylists(session_data.userData.id, session_data.token, 183)
+            getAllPlaylists(session_data.userData.id, session_data.token, session_data.nPlaylists)
             .then((list50s)=>{
+                findNewiesPlaylist(list50s).then( (rv) => session_data.newiesList = rv )
                 filterPlaylists(session_data.token, list50s)
                 .then((trackDump)=>{
                     filterTracks(trackDump, session_data.userData, 'date')
@@ -50,7 +49,19 @@ function run() {
                 })
             })
         })
-    })
+    }
+
+    function generatePlaylist(){
+        let existing = findNewiesPlaylist(session_data.userData.id, session_data.token);
+        if(existing !== null){
+            session_data.newiesList = existing;
+        }
+    }
+
+    // Event Listeners
+    authorizeBtn.addEventListener('mouseup', fetchAutho)
+    pullTracksBtn.addEventListener('mouseup', pullTracks)
+    generateBtn.addEventListener('mouseup', generatePlaylist)
 
 }
 

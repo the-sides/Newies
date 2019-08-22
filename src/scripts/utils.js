@@ -1,4 +1,5 @@
 import { getTracks } from './spotifyAPI.js';
+
 /**
  *   checkToken 
  */
@@ -117,7 +118,26 @@ function trackStripper(list, user = undefined, collab = false) {
     return bufferBank;
     // Future implementation, keep streak with dates to prevent loads
 }
+async function findNewiesPlaylist(listOf50s){
+    console.log('FIND NEWIES')
+
+    //* Ha okay, this is awful practice. Purely conceptual and must be changed. 
+    for(let i=0; i < listOf50s.length; i++ )
+        for(let j=0; j < listOf50s[i].items.length; j++ )
+            if(listOf50s[i].items[j].name === 'Newies')
+                console.log('WE FOUND ONE');
+
+    return false;
+    // forEach(listOf50s, (lists)=>{
+    //     forEach(lists.items, (list)=>{
+    //         if(list.name === 'Newies'){
+    //             console.log('WE FOUND ONE')
+    //         }
+
+    //     })
+    // })
+
+}
 
 
-
-export { checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks };
+export { checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist};

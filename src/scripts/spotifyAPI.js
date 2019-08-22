@@ -77,6 +77,12 @@ function getSpotifyData(_token, url, throttleBy = 0, probation = false) {
  *   getTracks(token, href)
  *      Will take the url to a playlist and produce a promise for all the tracks.
  */
+async function findNewiesPlaylist(listOf50s){
+    const url = '';
+    const response = await getSpotifyData(url);
+    return null;
+
+}
 async function getTracks(_token, href) {
     return await (getSpotifyData(_token, href))
 }
@@ -132,4 +138,4 @@ async function getAllPlaylists(uid, token, nPlaylists) {
 }
 
 
-export { fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists, getTracks }
+export { fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists, getTracks}
