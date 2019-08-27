@@ -86,6 +86,14 @@ a {
     margin: 1em;
     border: 2px solid #f9f871;
     color: inherit;
+    &:focus,
+    &:hover{
+      color: teal;
+      background-color: #f9f871;
+    }
+    &:active{
+      box-shadow: inset 0px 0px 2px black;
+    }
   }
 }
 
