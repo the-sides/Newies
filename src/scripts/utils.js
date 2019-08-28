@@ -37,7 +37,7 @@ function generateVerify(_session_data, cb) {
 }
 
 function validateList(playlist, user){
-    const ignoreList = ['Discover Weekly Archive', 'Discover Daily']
+    const ignoreList = ['Newies', 'Discover Weekly Archive', 'Discover Daily']
     if(playlist.owner.id !== user) return false;
     if(ignoreList.includes(playlist.name)) return false;
     return true;

@@ -136,9 +136,50 @@ async function getAllPlaylists(uid, token, nPlaylists) {
     return allLists;
 }
 
-function fillPlaylist(newies, _token, tracks){
+async function emptyPlaylist(newies, _token) {
+    // Since this is the only DELETE method, I'm just copying most of the getSpotifyData() code
+
+    // Request all tracks currently in playlist. 
+    const url = `https://api.spotify.com/v1/playlists/${newies.id}/tracks`
+    const tracks = await getTracks(_token, url, newies.name);
+
+    // Delete all found tracks. Same fetch URL is used with different method
+    const toDelete = { 'uris': [] };
+    tracks.items.forEach(song => {
+        toDelete.uris.push(song.track.uri)
+    })
+
+    const headerss = new Headers({
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + _token
+    })
+    const spotifyRequest = new Request(url, {
+        method: 'DELETE',
+        mode: 'cors',
+        headers: headerss,
+        body: JSON.stringify(toDelete)
+    })
+    await fetch(spotifyRequest)
+        .then(
+            (result) => {
+                return result.json();
+            }
+        )
+        .then(
+            (json) => console.log(json)
+        )
+        .catch((error) => {
+            console.error('Error caught during old track removal', error);
+        })
+
+}
+
+
+function fillPlaylist(newies, _token, tracks) {
+    //   Once again...
     // Since this is the only POST, I'm just copying most of the getSpotifyData() code
-    let toPost = { 'uris': []}
+    let toPost = { 'uris': [] }
     tracks.forEach(track => {
         toPost.uris.push(track.uri)
     })
@@ -153,7 +194,7 @@ function fillPlaylist(newies, _token, tracks){
         method: 'POST',
         mode: 'cors',
         headers: headerss,
-        data: JSON.stringify(toPost)
+        body: JSON.stringify(toPost)
     })
     fetch(spotifyRequest)
         .then(
@@ -171,4 +212,4 @@ function fillPlaylist(newies, _token, tracks){
 
 
 
-export { fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists, getTracks, fillPlaylist}
+export { fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists, getTracks, emptyPlaylist, fillPlaylist }

@@ -1,5 +1,5 @@
 import {checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist} from './utils.js'
-import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList, fillPlaylist } from './spotifyAPI.js'
+import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList, emptyPlaylist, fillPlaylist } from './spotifyAPI.js'
 import {displayUser, displayPlaylistCount, initRing, revealFeed} from './ui.js'
 
 const session_data = {
@@ -64,10 +64,13 @@ function run() {
             return false;
         }
         // * By this point, playlist should be known
-        sortTracks(session_data.trackBank)
-            .then(latest => {
-                fillPlaylist(session_data.newiesList, session_data.token, latest);
-            });
+
+        emptyPlaylist(session_data.newiesList, session_data.token).then(()=>{
+            sortTracks(session_data.trackBank)
+                .then(latest => {
+                    fillPlaylist(session_data.newiesList, session_data.token, latest);
+                });
+        })
 
     }
 
