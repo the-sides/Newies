@@ -136,5 +136,39 @@ async function getAllPlaylists(uid, token, nPlaylists) {
     return allLists;
 }
 
+function fillPlaylist(newies, _token, tracks){
+    // Since this is the only POST, I'm just copying most of the getSpotifyData() code
+    let toPost = { 'uris': []}
+    tracks.forEach(track => {
+        toPost.uris.push(track.uri)
+    })
+    const playlist_id = newies.id;
+    const url = `https://api.spotify.com/v1/playlists/${playlist_id}/tracks`
+    const headerss = new Headers({
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + _token
+    })
+    const spotifyRequest = new Request(url, {
+        method: 'POST',
+        mode: 'cors',
+        headers: headerss,
+        data: JSON.stringify(toPost)
+    })
+    fetch(spotifyRequest)
+        .then(
+            (result) => {
+                return result.json();
+            }
+        )
+        .then(
+            (json) => console.log(json)
+        )
+        .catch((error) => {
+            console.error('Error caught at data fetch', error);
+        })
+}
 
-export { fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists, getTracks}
+
+
+export { fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists, getTracks, fillPlaylist}

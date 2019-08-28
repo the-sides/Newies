@@ -1,5 +1,5 @@
 import {checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist} from './utils.js'
-import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList } from './spotifyAPI.js'
+import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList, fillPlaylist } from './spotifyAPI.js'
 import {displayUser, displayPlaylistCount, initRing, revealFeed} from './ui.js'
 
 const session_data = {
@@ -60,14 +60,15 @@ function run() {
     function generatePlaylist(){
         // * Newies playlist must be made
         if(!session_data.newiesList){
-
+            window.alert('First, create a playlist with the name "Newies"')
+            return false;
         }
         // * By this point, playlist should be known
-        console.log('Sorting tracks...')
         sortTracks(session_data.trackBank)
-            .then(latest => console.log(latest));
+            .then(latest => {
+                fillPlaylist(session_data.newiesList, session_data.token, latest);
+            });
 
-        // fillPlaylist(session_data.newiesList, latest);
     }
 
     // Event Listeners
