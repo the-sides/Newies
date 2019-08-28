@@ -44,7 +44,7 @@ function generateVerify(_session_data, cb) {
  * 
  *  @param {array} _50s 
  */
-async function filterPlaylists(_token, _50s) {
+async function filterPlaylists(_token, _50s, uid) {
     let trackPromises = [];
     let throttle = 100;
     for (let i = 0; i < _50s.length; i++) {
@@ -56,8 +56,12 @@ async function filterPlaylists(_token, _50s) {
         // Throttle sets of 50 to prevent API lockout.
         // setTimeout(()=>{
         for (let j = 0; j < _50s[i].items.length; j++) {
-            if (_50s[i].items[j].collaborative === false) {
-                trackPromises.push(getTracks(_token, _50s[i].items[j].tracks.href))
+            let crnt = _50s[i].items[j]
+            // if (j === 0) {
+            //     console.log(crnt)
+            // }
+            if(crnt.owner.id === uid){
+                trackPromises.push(getTracks(_token, crnt.tracks.href))
             }
         }
 
@@ -67,7 +71,6 @@ async function filterPlaylists(_token, _50s) {
     return await Promise.all(trackPromises)
 
 }
-async function sortTracks(tracks, user, sortBy) { return true; }
 async function filterTracks(tracks, user) {
     let trackBank = []
     tracks.forEach((playlist) => {
@@ -96,6 +99,10 @@ function trackStripper(list, user = undefined, collab = false) {
     let bufferBank = [];
 
     function parseSong(song) {
+        if(song.track === null){
+            console.log(`This song failed`, song)
+            return null;
+        }
         return {
             title: song.track.name,
             artist: song.track.artists[0].name,
@@ -121,23 +128,36 @@ function trackStripper(list, user = undefined, collab = false) {
 async function findNewiesPlaylist(listOf50s){
     console.log('FIND NEWIES')
 
-    //* Ha okay, this is awful practice. Purely conceptual and must be changed. 
-    for(let i=0; i < listOf50s.length; i++ )
-        for(let j=0; j < listOf50s[i].items.length; j++ )
-            if(listOf50s[i].items[j].name === 'Newies')
-                console.log('WE FOUND ONE');
+    for(let i=0; i < listOf50s.length; i++ ){
+        for(let j=0; j < listOf50s[i].items.length; j++ ){
+            if(listOf50s[i].items[j].name === 'Newies'){
+                console.log('Existing Newies playlist found');
+                return listOf50s[i].items[j];
+            }
+        }
+    }
 
-    return false;
-    // forEach(listOf50s, (lists)=>{
-    //     forEach(lists.items, (list)=>{
-    //         if(list.name === 'Newies'){
-    //             console.log('WE FOUND ONE')
-    //         }
-
-    //     })
-    // })
-
+    return null;
 }
 
+async function sortTracks(tracks) { 
+    let rv = [];
+    let saved = 0;
+    let i = tracks.length;
+    console.log(tracks.length)
+    tracks.sort((a, b) => {
+        if(a === null || b === null) return 1; 
+        return (a.date > b.date) ? 1 : -1
+    })
+
+    while(saved < 30 && i > 0){
+        i--;
+        if(tracks[i] !== undefined)
+            saved++;   // For the purpose of ignoring undefined
+        rv.push(tracks[i])
+    }
+    console.log(rv)
+    return rv; 
+}
 
 export { checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist};

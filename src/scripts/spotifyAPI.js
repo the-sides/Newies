@@ -25,7 +25,10 @@ function errorCheckResponse(_result, _probation) {
         return _result;
     }
     // Only reached on a failed attempt
-    if (_probation) throw new Error(`Bad Request after ${2} attempts ${_result.status}`)
+    if (_probation) {
+        console.log(_result)
+        throw new Error(`Bad Request after ${2} attempts`)
+    }
     else {
         console.error('trying again in 2 secs...');
         return false;
