@@ -86,8 +86,10 @@ async function findNewiesPlaylist(listOf50s){
     return null;
 
 }
-async function getTracks(_token, href) {
-    return await (getSpotifyData(_token, href))
+async function getTracks(_token, href, pName = '') {
+    let dataRes = await getSpotifyData(_token, href);
+    dataRes['pName'] = pName;
+    return dataRes;
 }
 
 async function getPlaylistList(_uid, _token, offset = 0, limit = 50) {

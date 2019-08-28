@@ -36,6 +36,12 @@ function generateVerify(_session_data, cb) {
     cb()
 }
 
+function validateList(playlist, user){
+    const ignoreList = ['Discover Weekly Archive', 'Discover Daily']
+    if(playlist.owner.id !== user) return false;
+    if(ignoreList.includes(playlist.name)) return false;
+    return true;
+}
 
 /**
  *  
@@ -53,15 +59,10 @@ async function filterPlaylists(_token, _50s, uid) {
             continue;
         }
 
-        // Throttle sets of 50 to prevent API lockout.
-        // setTimeout(()=>{
         for (let j = 0; j < _50s[i].items.length; j++) {
             let crnt = _50s[i].items[j]
-            // if (j === 0) {
-            //     console.log(crnt)
-            // }
-            if(crnt.owner.id === uid){
-                trackPromises.push(getTracks(_token, crnt.tracks.href))
+            if(validateList(crnt, uid)){
+                trackPromises.push(getTracks(_token, crnt.tracks.href, crnt.name))
             }
         }
 
@@ -98,7 +99,7 @@ function trackStripper(list, user = undefined, collab = false) {
         throw new Error("Can't strip an undefined list ¯\\_(ツ)_/¯")
     let bufferBank = [];
 
-    function parseSong(song) {
+    function parseSong(song, pName) {
         if(song.track === null){
             console.log(`This song failed`, song)
             return null;
@@ -107,13 +108,14 @@ function trackStripper(list, user = undefined, collab = false) {
             title: song.track.name,
             artist: song.track.artists[0].name,
             uri: song.track.uri,
-            date: song.added_at
+            date: song.added_at,
+            playlist: pName,
         }
     }
     // console.log(list)
     if (!collab) {
         list.items.forEach(song => {
-            bufferBank.push(parseSong(song))
+            bufferBank.push(parseSong(song, list.pName))
         })
     }
     else {

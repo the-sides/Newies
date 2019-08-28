@@ -48,7 +48,10 @@ function run() {
                 filterPlaylists(session_data.token, list50s, session_data.userData.id)
                 .then((trackDump)=>{
                     filterTracks(trackDump, session_data.userData, 'date')
-                    .then(formattedTracks => session_data.trackBank = formattedTracks)
+                    .then(formattedTracks => {
+                        session_data.trackBank = formattedTracks
+                        console.log("All tracks recieved")
+                    })
                 })
             })
         })
