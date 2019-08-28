@@ -80,12 +80,6 @@ function getSpotifyData(_token, url, throttleBy = 0, probation = false) {
  *   getTracks(token, href)
  *      Will take the url to a playlist and produce a promise for all the tracks.
  */
-async function findNewiesPlaylist(listOf50s){
-    const url = '';
-    const response = await getSpotifyData(url);
-    return null;
-
-}
 async function getTracks(_token, href, pName = '') {
     let dataRes = await getSpotifyData(_token, href);
     dataRes['pName'] = pName;
