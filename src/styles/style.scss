@@ -29,9 +29,12 @@ a {
   justify-content: space-around;
   overflow: hidden;
   /* max-width: 556px; */
-  @media (max-width: 500px) {
+  @media (max-width: 730px) {
     &{
       flex-direction: column;
+    }
+    .gui{
+      width: 70vw;
     }
   }
 }
@@ -121,6 +124,9 @@ a {
   height: 40vh;
   pointer-events: none;
   fill: #f9f871;
+  &--hidden{
+    display: none;
+  }
 }
 
 
