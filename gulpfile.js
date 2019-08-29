@@ -82,7 +82,7 @@ const devBuild = series(
 
 async function watcher() {
     watch(['./src/styles/**/*.scss'], styles)
-    watch([`./src/scripts/*.js`, `./src/views/**/*.ejs`], () => {
+    watch([`./src/scripts/*.js`, `./src/views/**/*.pug`], () => {
         series(
             devBuild(),
             setTimeout(browserSync.reload, 2000)
