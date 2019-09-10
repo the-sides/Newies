@@ -65,23 +65,24 @@ a {
     border-radius: 0.4em;
   }
   .infoPanel{
-    margin: 0.4em;
-    padding: 0.2em;
+    // margin: 0.4em;
+    // padding: 0.2em;
     display: flex;
     flex-direction: row;
     .userPhoto{
       img{
-        clip-path: circle(40%);
+        clip-path: circle(50%);
         max-height: 128px;
         width: auto;
       }
       // margin: 10%;
       flex: 1
     }
-    .content{
+    .userDesc{
       flex: 4;
       margin: auto;
     }
+    border-bottom: 1px solid black;
 
   }
 }

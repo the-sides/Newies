@@ -20,7 +20,14 @@ script(src='/scripts/client.js')
       a#generateBtn.button Generate Playlist
   section.feed.feed--hidden
     .feed__backdrop
-      .infoPanel
+      header.infoPanel
         figure.userPhoto
           img(src='' alt='')
-        p.playlistCount
+        div.userDesc
+          p.userName
+          p.playlistCount
+      main.feedPanel
+        .feedItem
+          p.message
+          i
+        
