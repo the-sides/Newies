@@ -43,6 +43,7 @@ async function nodemonTask(cb) {
 
 
 function styles() {
+    console.log('updating styles...')
     return src('./src/styles/**/*.scss')
         .pipe(sass().on('error', sass.logError))
         .pipe(dest('dist/styles/'))

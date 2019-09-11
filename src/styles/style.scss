@@ -1,4 +1,4 @@
-@import 'animations';
+@import 'feed';
 
 html{
   min-height: 100%;
@@ -12,6 +12,7 @@ body {
   background-repeat: no-repeat;
   background-image: linear-gradient(to right bottom, #285467, #216174, #176f7f, #087d88, #008b8e, #008e8f, #009190, #009491, #008d8f, #00868c, #007f89, #027885);
   color: #f9f871;
+  // color: black; Used for testing browsersync. that stubborn ho...
 }
 h1{
   font-size: 2em;
@@ -48,44 +49,6 @@ a {
   margin-right: auto;
 }
 
-
-.feed{
-  max-width: 500px;
-  flex: 1;
-  overflow: hidden;
-  transition: all 1s ease-in;
-  &--hidden{
-    max-width: 0px;
-  }
-  &__backdrop{
-    display: block;
-    background-color: teal;
-    width: 100%;
-    height: 100%;
-    border-radius: 0.4em;
-  }
-  .infoPanel{
-    // margin: 0.4em;
-    // padding: 0.2em;
-    display: flex;
-    flex-direction: row;
-    .userPhoto{
-      img{
-        clip-path: circle(50%);
-        max-height: 128px;
-        width: auto;
-      }
-      // margin: 10%;
-      flex: 1
-    }
-    .userDesc{
-      flex: 4;
-      margin: auto;
-    }
-    border-bottom: 1px solid black;
-
-  }
-}
 
 .userInput{
   margin-top: 2em;
