@@ -1,4 +1,5 @@
 import { getTracks } from './spotifyAPI.js';
+import { postFeed } from './ui.js';
 
 /**
  *   checkToken 
@@ -128,17 +129,18 @@ function trackStripper(list, user = undefined, collab = false) {
     // Future implementation, keep streak with dates to prevent loads
 }
 async function findNewiesPlaylist(listOf50s){
-    console.log('FIND NEWIES')
+    postFeed('Looking for Newies playlist');
 
     for(let i=0; i < listOf50s.length; i++ ){
         for(let j=0; j < listOf50s[i].items.length; j++ ){
             if(listOf50s[i].items[j].name === 'Newies'){
-                console.log('Existing Newies playlist found');
+                postFeed('Existing Newies playlist found!');
                 return listOf50s[i].items[j];
             }
         }
     }
 
+    postFeed('Newies playlist was not found, please create one. I haven\'t written that code yet :)');
     return null;
 }
 

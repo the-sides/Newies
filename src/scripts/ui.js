@@ -20,9 +20,22 @@ function revealFeed() {
     const feed = document.querySelector('.feed');
     feed.classList.remove('feed--hidden');
 }
-function postFeed(message){
-    let newElm = document.createElement('div');
-    newElm.className = 'feedItem';
+function newFeedItem(message){
+    let item = document.createElement('li');
+    let pMessage = document.createElement('p');
 
+    item.className = 'feedItem';
+    pMessage.className = 'feedMessage';
+    pMessage.textContent = message;
+
+    item.appendChild(pMessage);
+    return item;
 }
-export { displayUser, displayPlaylistCount, initRing, revealFeed }
+
+function postFeed(message){
+    const feed = document.querySelector('.feedList');
+    const newElm = newFeedItem(message);
+    feed.appendChild(newElm);
+}
+
+export { displayUser, displayPlaylistCount, initRing, revealFeed, postFeed }

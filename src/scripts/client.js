@@ -1,6 +1,6 @@
 import {checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist} from './utils.js'
 import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList, emptyPlaylist, fillPlaylist } from './spotifyAPI.js'
-import {displayUser, displayPlaylistCount, initRing, revealFeed} from './ui.js'
+import {displayUser, displayPlaylistCount, initRing, revealFeed, postFeed} from './ui.js'
 
 const session_data = {
     token: undefined,
@@ -11,7 +11,6 @@ const session_data = {
 }
 
 function run() {
-
     checkToken((token)=>{
         if(null !== token){
             session_data.token = token;
@@ -44,13 +43,15 @@ function run() {
             // All systems are a go
             getAllPlaylists(session_data.userData.id, session_data.token, session_data.nPlaylists)
             .then((list50s)=>{
+                postFeed('All playlists pulled');
                 findNewiesPlaylist(list50s).then( (rv) => session_data.newiesList = rv )
+                postFeed('Waiting to filter all tracks...');
                 filterPlaylists(session_data.token, list50s, session_data.userData.id)
                 .then((trackDump)=>{
                     filterTracks(trackDump, session_data.userData, 'date')
                     .then(formattedTracks => {
-                        session_data.trackBank = formattedTracks
-                        console.log("All tracks recieved")
+                        session_data.trackBank = formattedTracks;
+                        postFeed("All tracks received");
                     })
                 })
             })
