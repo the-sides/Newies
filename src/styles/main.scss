@@ -71,18 +71,6 @@ a {
 }
 
 
-.playlistCount{
-  overflow: hidden;
-  white-space: nowrap; /* Keeps the content on a single line */
-}
-
-.revealed{
-  transition: height 500ms ease-in-out;
-  display: block;
-  height: auto; 
-}
-
-
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 40vh;

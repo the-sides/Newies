@@ -34,4 +34,8 @@
     border-bottom: 1px solid black;
 
   }
+  .playlistCount{
+    overflow: hidden;
+    white-space: nowrap; /* Keeps the content on a single line */
+  }
 }
