@@ -21,7 +21,7 @@ function fetchAutho() {
 function errorCheckResponse(_result, _probation) {
     // Success
     if (_result.status == 200) {
-        if (_probation) console.log(`Retry successful; Attempts: ${2}`)
+        if (_probation) console.log(`Successful Retry; Attempts: ${2}`)
         return _result;
     }
     // Only reached on a failed attempt
