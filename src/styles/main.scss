@@ -1,4 +1,5 @@
 @import 'feed';
+@import 'media-queries';
 
 html{
   min-height: 100%;
@@ -33,6 +34,7 @@ a {
   @media (max-width: 730px) {
     &{
       flex-direction: column;
+      direction: ltr;
     }
     .gui{
       width: 70vw;
