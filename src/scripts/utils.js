@@ -1,4 +1,4 @@
-import { getTracks } from './spotifyAPI.js';
+import { getTracks, createPlaylist } from './spotifyAPI.js';
 import { postFeed } from './ui.js';
 
 /**
@@ -101,10 +101,16 @@ function trackStripper(list, user = undefined, collab = false) {
     let bufferBank = [];
 
     function parseSong(song, pName) {
-        if(song.track === null){
-            console.log(`This song failed`, song)
-            return null;
+        if(song === null || song.track === null){
+            console.log(`This song failed?`, song.track)
+            return false;
         }
+        
+        if(true === song.is_local){
+            console.log(`This song is local, ignoring`, song)
+            return false
+        }
+
         return {
             title: song.track.name,
             artist: song.track.artists[0].name,
@@ -113,23 +119,23 @@ function trackStripper(list, user = undefined, collab = false) {
             playlist: pName,
         }
     }
-    // console.log(list)
+
+    // Filter for songs that belong to this user
     if (!collab) {
-        list.items.forEach(song => {
-            bufferBank.push(parseSong(song, list.pName))
+        list.items.forEach(songItem => {
+            bufferBank.push(parseSong(songItem, list.pName))
         })
     }
     else {
-        list.items.forEach(song => {
-            bufferBank.push(parseSong(song))
+        list.items.forEach(songItem => {
+            bufferBank.push(parseSong(songItem))
         })
-        // Filter for songs that belong to this user
     }
-    return bufferBank;
+
+    return bufferBank.filter(truthy => truthy);
     // Future implementation, keep streak with dates to prevent loads
 }
-async function findNewiesPlaylist(listOf50s){
-    postFeed('Looking for Newies playlist');
+function findNewiesPlaylist(listOf50s){
 
     for(let i=0; i < listOf50s.length; i++ ){
         for(let j=0; j < listOf50s[i].items.length; j++ ){
