@@ -1,6 +1,5 @@
 function fetchAutho() {
     // Send user to a Spotify authorization site to redirect with an autho token
-    const port = 3001;
     const scopes = [
         'playlist-read-private',
         'user-read-recently-played',
@@ -8,7 +7,7 @@ function fetchAutho() {
         'playlist-modify-public',
         'playlist-read-collaborative',
     ]
-    const url = `http://127.0.0.1:${port}`;
+    const url = window.location.href;
 
     window.location = "https://accounts.spotify.com/authorize?"
         + "client_id=9ae70c7a06b14e38bc355c0b4e7f8d42&"
@@ -35,18 +34,33 @@ function errorCheckResponse(_result, _probation) {
     }
 }
 
-function getSpotifyData(_token, url, throttleBy = 0, probation = false) {
+function getSpotifyData(_token, url, throttleBy = 0, probation = false, postData = false) {
     return new Promise(function (resolve, reject) {
         let headerss = new Headers({
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + _token
         })
-        let spotifyRequest = new Request(url, {
-            method: 'GET',
-            mode: 'cors',
-            headers: headerss
-        })
+
+        let spotifyRequest
+
+        if(postData){
+            console.log('post')
+            spotifyRequest = new Request(url, {
+                method: 'POST',
+                body: postData,
+                mode: 'cors',
+                headers: headerss
+            })
+        }
+        else {
+            spotifyRequest = new Request(url, {
+                method: 'GET',
+                mode: 'cors',
+                headers: headerss
+            })
+        }
+
         setTimeout(() => {
             fetch(spotifyRequest)
                 .then(
@@ -55,7 +69,7 @@ function getSpotifyData(_token, url, throttleBy = 0, probation = false) {
                         const response = errorCheckResponse(result, probation)
 
                         if (response === false)  // Keep trying...
-                            return getSpotifyData(_token, url, 2000, true)
+                            return getSpotifyData(_token, url, 2000, true, postData)
 
                         // Success
                         else
@@ -66,7 +80,7 @@ function getSpotifyData(_token, url, throttleBy = 0, probation = false) {
                     (json) => resolve(json)
                 )
                 .catch(error => {
-                    console.error('Error caught at data fetch');
+                    console.error('Error caught at data fetch', error);
                     reject(error)
                 })
         }, throttleBy)
@@ -175,6 +189,14 @@ async function emptyPlaylist(newies, _token) {
 
 }
 
+function createPlaylist(_name, uid, token){
+    const url = `https://api.spotify.com/v1/users/${uid}/playlists`
+    const data = JSON.stringify({
+        name : _name,
+        description : 'A playlist made by Newies web app.'
+    })
+    const playlistRes = getSpotifyData(token, url, 0, false, data ).then(console.log)
+}
 
 function fillPlaylist(newies, _token, tracks) {
     //   Once again...
@@ -212,4 +234,11 @@ function fillPlaylist(newies, _token, tracks) {
 
 
 
-export { fetchAutho, getSpotifyData, getPlaylistList, getAllPlaylists, getTracks, emptyPlaylist, fillPlaylist }
+export { fetchAutho, 
+    getSpotifyData, 
+    getPlaylistList, 
+    getAllPlaylists, 
+    getTracks, 
+    emptyPlaylist, 
+    fillPlaylist, 
+    createPlaylist }
