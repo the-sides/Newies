@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "gulp run",
+    "start": "node www/bin",
+    "dev": "gulp run",
     "build": "gulp devBuild"
   },
   "dependencies": {
