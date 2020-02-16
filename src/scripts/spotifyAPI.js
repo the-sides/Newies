@@ -19,7 +19,7 @@ function fetchAutho() {
 }
 function errorCheckResponse(_result, _probation) {
     // Success
-    if (_result.status == 200) {
+    if (_result.status === 200 || _result.status === 201) {
         if (_probation) console.log(`Successful Retry; Attempts: ${2}`)
         return _result;
     }
@@ -189,13 +189,13 @@ async function emptyPlaylist(newies, _token) {
 
 }
 
-function createPlaylist(_name, uid, token){
+async function createPlaylist(_name, uid, token){
     const url = `https://api.spotify.com/v1/users/${uid}/playlists`
     const data = JSON.stringify({
         name : _name,
         description : 'A playlist made by Newies web app.'
     })
-    const playlistRes = getSpotifyData(token, url, 0, false, data ).then(console.log)
+    return await getSpotifyData(token, url, 0, false, data )
 }
 
 function fillPlaylist(newies, _token, tracks) {

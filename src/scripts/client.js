@@ -1,5 +1,5 @@
 import {checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist} from './utils.js'
-import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList, emptyPlaylist, fillPlaylist } from './spotifyAPI.js'
+import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList, emptyPlaylist, fillPlaylist, createPlaylist } from './spotifyAPI.js'
 import {displayUser, displayPlaylistCount, initRing, revealFeed, postFeed} from './ui.js'
 
 const session_data = {
@@ -38,14 +38,14 @@ function run() {
 
     function pullTracks(){
         // Toggle app logo
-        // document.querySelector('.App-logo--hidden').classList.remove('App-logo--hidden')
         generateVerify(session_data, ()=>{
             // All systems are a go
             getAllPlaylists(session_data.userData.id, session_data.token, session_data.nPlaylists)
             .then((list50s)=>{
                 postFeed('All playlists pulled');
-                findNewiesPlaylist(list50s).then( (rv) => session_data.newiesList = rv )
-                postFeed('Waiting to filter all tracks...');
+
+                session_data.newiesList = findNewiesPlaylist(list50s)
+
                 filterPlaylists(session_data.token, list50s, session_data.userData.id)
                 .then((trackDump)=>{
                     filterTracks(trackDump, session_data.userData, 'date')
@@ -58,20 +58,25 @@ function run() {
         })
     }
 
-    function generatePlaylist(){
+    async function generatePlaylist(){
         // * Newies playlist must be made
-        if(!session_data.newiesList){
-            window.alert('First, create a playlist with the name "Newies"')
-            return false;
+        // let newPlaylist = false
+        if(session_data.newiesList === null){
+            session_data.newiesList = await createPlaylist('Newies', session_data.userData.id, session_data.token)
+            console.log('new list', session_data.newiesList)
         }
-        // * By this point, playlist should be known
 
-        emptyPlaylist(session_data.newiesList, session_data.token).then(()=>{
-            sortTracks(session_data.trackBank)
-                .then(latest => {
-                    fillPlaylist(session_data.newiesList, session_data.token, latest);
-                });
-        })
+        // * By this point, playlist should be known
+        else {
+            await emptyPlaylist(session_data.newiesList, session_data.token)
+        }
+
+
+
+        sortTracks(session_data.trackBank)
+            .then(latest => {
+                fillPlaylist(session_data.newiesList, session_data.token, latest);
+            });
 
     }
 
