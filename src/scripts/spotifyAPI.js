@@ -27,7 +27,7 @@ function errorCheckResponse(_result, _probation) {
     if (_probation) {
         console.log(_result)
         window.alert('Jacob is a bad coder and couldn\'t prepare for all your playlists. Trying again. Feel free to give up whenever. Idgaf')
-        window.location.reload()
+        window.location.replace('/')
         throw new Error(`Bad Request after ${2} attempts`)
     }
     else {
