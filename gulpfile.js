@@ -69,7 +69,7 @@ const dev = series(
     scripts, 
     parallel(
         styles, 
-    //    images
+        images
         )
     )
 
