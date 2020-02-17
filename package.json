@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node www/bin",
     "dev": "gulp run",
-    "build": "gulp devBuild"
+    "build": "gulp dev"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
