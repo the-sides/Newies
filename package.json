@@ -6,7 +6,7 @@
   },
   "private": true,
   "scripts": {
-    "start": "node www/bin",
+    "start": "node bin/www",
     "dev": "gulp run",
     "build": "gulp dev"
   },
