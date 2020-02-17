@@ -40,6 +40,7 @@ function run() {
 
     function pullTracks(){
         // Toggle app logo
+        hideBtn('#pullTracksBtn')
         generateVerify(session_data, ()=>{
             // All systems are a go
             getAllPlaylists(session_data.userData.id, session_data.token, session_data.nPlaylists)
@@ -48,6 +49,8 @@ function run() {
 
                 session_data.newiesList = findNewiesPlaylist(list50s)
 
+
+                postFeed('Pulling tracks...');
                 filterPlaylists(session_data.token, list50s, session_data.userData.id)
                 .then((trackDump)=>{
                     filterTracks(trackDump, session_data.userData, 'date')
