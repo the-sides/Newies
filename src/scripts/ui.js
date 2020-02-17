@@ -20,6 +20,22 @@ function revealFeed() {
     const feed = document.querySelector('.feed');
     feed.classList.remove('feed--hidden');
 }
+
+function hideBtn(selector) {
+    const elm = document.querySelector(selector);
+    elm.classList.add('hidden');
+}
+
+function revealBtn(selector) {
+    const elm = document.querySelector(selector);
+    elm.classList.remove('hidden');
+}
+
+function changeBtn(selector, newText) {
+    const elm = document.querySelector(selector);
+    elm.textContent = newText;
+}
+
 function newFeedItem(message){
     let item = document.createElement('li');
     let pMessage = document.createElement('p');
@@ -38,4 +54,4 @@ function postFeed(message){
     feed.appendChild(newElm);
 }
 
-export { displayUser, displayPlaylistCount, initRing, revealFeed, postFeed }
+export { displayUser, displayPlaylistCount, initRing, revealFeed, revealBtn, hideBtn, changeBtn, postFeed }

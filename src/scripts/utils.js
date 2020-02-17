@@ -1,5 +1,5 @@
-import { getTracks, createPlaylist } from './spotifyAPI.js';
-import { postFeed } from './ui.js';
+import { getTracks } from './spotifyAPI.js';
+import { postFeed, changeBtn } from './ui.js';
 
 /**
  *   checkToken 
@@ -141,12 +141,15 @@ function findNewiesPlaylist(listOf50s){
         for(let j=0; j < listOf50s[i].items.length; j++ ){
             if(listOf50s[i].items[j].name === 'Newies'){
                 postFeed('Existing Newies playlist found!');
+                changeBtn('#generateBtn', 'Update Playlist');
                 return listOf50s[i].items[j];
             }
         }
     }
 
-    postFeed('Newies playlist was not found, please create one. I haven\'t written that code yet :)');
+    postFeed('Newies playlist was not found');
+    postFeed('One can be generated');
+
     return null;
 }
 

@@ -1,6 +1,6 @@
 import {checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist} from './utils.js'
 import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList, emptyPlaylist, fillPlaylist, createPlaylist } from './spotifyAPI.js'
-import {displayUser, displayPlaylistCount, initRing, revealFeed, postFeed} from './ui.js'
+import {displayUser, displayPlaylistCount, initRing, revealFeed, hideBtn, revealBtn, postFeed} from './ui.js'
 
 const session_data = {
     token: undefined,
@@ -21,6 +21,8 @@ function run() {
                 session_data.userData = userdata;
                 console.log(userdata)
                 revealFeed();
+                hideBtn('#authoBtn');
+                revealBtn('#pullTracksBtn')
                 displayUser(userdata);
                 getPlaylistList(userdata.id, token).then((listOf50)=>{
                     session_data.nPlaylists = listOf50.total;
@@ -52,6 +54,7 @@ function run() {
                     .then(formattedTracks => {
                         session_data.trackBank = formattedTracks;
                         postFeed("All tracks received");
+                        revealBtn('#generateBtn')
                     })
                 })
             })
@@ -64,20 +67,25 @@ function run() {
         if(session_data.newiesList === null){
             session_data.newiesList = await createPlaylist('Newies', session_data.userData.id, session_data.token)
             console.log('new list', session_data.newiesList)
+            postFeed('Created "Newies" playlist')
         }
 
         // * By this point, playlist should be known
         else {
             await emptyPlaylist(session_data.newiesList, session_data.token)
+            postFeed('Emptied "Newies" playlist')
         }
 
 
 
+        postFeed('Filling "Newies" playlist')
         sortTracks(session_data.trackBank)
             .then(latest => {
                 fillPlaylist(session_data.newiesList, session_data.token, latest);
             });
 
+        
+        postFeed('Your "Newies" playlist is live')
     }
 
     // Event Listeners
