@@ -1,4 +1,4 @@
-import {checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist} from './utils.js'
+import {confirmHTTPS, checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist} from './utils.js'
 import {fetchAutho, getSpotifyData, getAllPlaylists, getPlaylistList, emptyPlaylist, fillPlaylist, createPlaylist } from './spotifyAPI.js'
 import {displayUser, displayPlaylistCount, initRing, revealFeed, hideBtn, revealBtn, postFeed} from './ui.js'
 
@@ -11,6 +11,9 @@ const session_data = {
 }
 
 function run() {
+    
+    confirmHTTPS()
+
     checkToken((token)=>{
         if(null !== token){
             session_data.token = token;

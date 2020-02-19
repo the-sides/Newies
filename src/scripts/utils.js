@@ -1,6 +1,14 @@
 import { getTracks } from './spotifyAPI.js';
 import { postFeed, changeBtn } from './ui.js';
 
+function confirmHTTPS(){
+    if(-1 === window.location.href.indexOf('https') && -1 === window.location.href.indexOf('localhost')){
+        const newUrl = window.location.href
+        newUrl.replace('http', 'https')
+        window.location.replace(newUrl)
+    }
+}
+
 /**
  *   checkToken 
  */
@@ -173,4 +181,4 @@ async function sortTracks(tracks) {
     return rv; 
 }
 
-export { checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist};
+export { confirmHTTPS, checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist};
