@@ -5,7 +5,7 @@ function confirmHTTPS(){
     if(-1 === window.location.href.indexOf('https') && -1 === window.location.href.indexOf('localhost')){
         const newUrl = window.location.href
         newUrl.replace('http', 'https')
-        window.location.replace(newUrl)
+        window.location.replace('https://newies.herokuapp.com/')
     }
 }
 
