@@ -161,7 +161,7 @@ function findNewiesPlaylist(listOf50s){
     return null;
 }
 
-async function sortTracks(tracks) { 
+async function sortTracks(tracks, toSave = 100) { 
     let rv = [];
     let saved = 0;
     let i = tracks.length;
@@ -171,7 +171,7 @@ async function sortTracks(tracks) {
         return (a.date > b.date) ? 1 : -1
     })
 
-    while(saved < 30 && i > 0){
+    while(saved < toSave && i > 0){
         i--;
         if(tracks[i] !== undefined)
             saved++;   // For the purpose of ignoring undefined
