@@ -161,7 +161,7 @@ function findNewiesPlaylist(listOf50s){
     return null;
 }
 
-async function sortTracks(tracks, toSave = 100) { 
+async function sortTracks(tracks, toSave = 300) { 
     let rv = [];
     let saved = 0;
     let i = tracks.length;
@@ -177,8 +177,9 @@ async function sortTracks(tracks, toSave = 100) {
             saved++;   // For the purpose of ignoring undefined
         rv.push(tracks[i])
     }
+    
     console.log(rv)
-    return rv; 
+    return Array.from(new Set(rv)); 
 }
 
 export { confirmHTTPS, checkToken, generateVerify, sortTracks, trackStripper, filterPlaylists, filterTracks, findNewiesPlaylist};
