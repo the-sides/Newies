@@ -24,11 +24,11 @@ function errorCheckResponse(_result, _probation) {
         return _result;
     }
     // Only reached on a failed attempt
-    if (_probation) {
+    if (_probation > 7) {
         console.log(_result)
-        window.alert('Jacob is a bad coder and couldn\'t prepare for all your playlists. Trying again. Feel free to give up whenever. Idgaf')
+        // window.alert('Jacob is a bad coder and couldn\'t prepare for all your playlists. Trying again. Feel free to give up whenever. Idgaf')
         window.location.replace('/')
-        throw new Error(`Bad Request after ${2} attempts`)
+        throw new Error(`Bad Request after ${_probation} attempts`)
     }
     else {
         console.error('trying again in 2 secs...');
@@ -36,7 +36,7 @@ function errorCheckResponse(_result, _probation) {
     }
 }
 
-function getSpotifyData(_token, url, throttleBy = 0, probation = false, postData = false) {
+function getSpotifyData(_token, url, throttleBy = 0, probation = 0, postData = false) {
     return new Promise(function (resolve, reject) {
         let headerss = new Headers({
             'Accept': 'application/json',
@@ -71,7 +71,7 @@ function getSpotifyData(_token, url, throttleBy = 0, probation = false, postData
                         const response = errorCheckResponse(result, probation)
 
                         if (response === false)  // Keep trying...
-                            return getSpotifyData(_token, url, 2000, true, postData)
+                            return getSpotifyData(_token, url, 2000, probation + 1, postData)
 
                         // Success
                         else

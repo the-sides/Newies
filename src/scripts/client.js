@@ -87,7 +87,21 @@ function run() {
         postFeed('Filling "Newies" playlist')
         sortTracks(session_data.trackBank)
             .then(latest => {
-                fillPlaylist(session_data.newiesList, session_data.token, latest);
+                // Split into chunks of 100
+                const chunks = latest.reduce((resultArray, item, index) => { 
+                    const chunkIndex = Math.floor(index/100)
+                  
+                    if(!resultArray[chunkIndex]) {
+                      resultArray[chunkIndex] = [] // start a new chunk
+                    }
+                  
+                    resultArray[chunkIndex].push(item)
+                  
+                    return resultArray
+                  }, [])
+                chunks.forEach(chunk => {
+                    fillPlaylist(session_data.newiesList, session_data.token, chunk);
+                })
             });
 
         
